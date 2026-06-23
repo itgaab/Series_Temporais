@@ -1,0 +1,402 @@
+---
+title: "Análise de Série Temporal - Usuários de Internet no Brasil"
+title-slide-attributes:
+  data-background-image: Marca_UEPB.png
+  data-background-size: contain
+  data-background-opacity: "0.15"
+author: "Ítalo Gabriel"
+institute: "Universidade Estadual da Paraíba"
+format: 
+  revealjs: 
+    width: 1000
+    margin: 0.1
+    logo: Marca_UEPB.png
+    theme: simple
+    mainfont: "Times New Roman"
+    transition: slide
+    background-transition: fade
+    smaller: true
+    scrollable: true
+    
+include-in-header:
+  text: |
+    <!-- Fonte Anton -->
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+
+    <style>
+    .reveal h1, .reveal h2, .reveal h3 {
+      font-family: 'Anton', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #0b3c6f;
+    }
+      
+    /* 1. Fundo geral da apresentação (Branco) */
+    .reveal {
+      background-color: #ffffff !important;
+      color: #1a1a1a !important;
+    }
+
+    /* Títulos em azul marinho para contraste */
+    .reveal h1, .reveal h2, .reveal h3 {
+      color: #003366;
+    }
+
+    /* BLOCO DE CÓDIGO (Entrada/Input) */
+    .reveal pre.sourceCode {
+      border: 1px solid #99c2ff;
+      box-shadow: none;
+    }
+    
+    </style>
+    
+knitr:
+  opts_chunk:
+    message: false
+    warning: false
+css: hscroll.scss
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## Introdução sobre a Série Temporal utilizada
+
+O acesso à internet é um importante indicador do desenvolvimento
+tecnológico e econômico de um país, pois reflete o avanço da
+infraestrutura digital e a inclusão da população na sociedade da
+informação. Neste contexto, a série temporal de **"percentual de
+indivíduos usuários de internet no Brasil"** permite analisar tendências
+de longo prazo e os impactos das políticas de expansão digital ao longo
+das últimas três décadas.
+
+Os dados correspondem ao percentual da população brasileira que utiliza
+a internet, coletados anualmente entre 1990 e 2024. A variável
+`ITNETUSERP2BRA` é fornecida pelo Banco Mundial e disponibilizada pelo
+FRED (Banco da Reserva Federal de St. Louis), representando uma medida
+padronizada para comparações internacionais.
+
+## Pacotes utilizados
+
+-   **readr:** Leitura de dados (csv, xlsx, etc.);
+
+-   **dplyr:** Manipulação de dados;
+
+-   **lubridate:** Trabalhar na conversão de datas;
+
+-   **ggplot2:** construção dos gráficos da série temporal;
+
+-   **tsibble:** Essencial para usar o ecossistema moderno de séries
+    temporais;
+
+-   **feasts:** Pacote chave pra explorar tendência e autocorrelação;
+
+-   **tidyr:** Organização/reestruturação de dados
+
+-   **patchwork:** Colocar gráficos lado a lado;
+
+```{r, echo=FALSE}
+
+# Carregando os pacotes 
+library(readr)     
+library(dplyr)      
+library(lubridate)  
+library(ggplot2)    
+library(tsibble)    
+library(feasts)
+library(tidyr)
+library(patchwork)
+library(kableExtra)
+```
+
+## Carregando e formatando os dados
+
+```{r, echo=FALSE}
+
+# Carregando o banco de dados 
+df_internet <- read.csv("C:\\Users\\italo\\Desktop\\Series_Temporais\\Serie_temporal_Tendencia\\INTERNET.csv")
+
+# Renomeando as colunas 
+names(df_internet) <- c("Data", "Indice")
+
+# Formatando a data como ano e convertendo para tsibble anual
+df_internet <- df_internet %>%
+  mutate(Ano = as.integer(format(as.Date(Data), "%Y"))) %>%
+  as_tsibble(index = Ano)
+
+head(df_internet)
+tail(df_internet)
+```
+
+O nosso bando de dados começa em 1990 e vai até 2024, sendo uma série com período anual.
+
+```{r, echo=FALSE}
+
+# Criando uma série temporal anual 
+serie_anual <- df_internet %>%
+  select(Ano, Indice)
+```
+
+## Gráfico da série original
+
+```{r, echo=FALSE}
+
+# Plot de série temporal anual
+serie_anual %>%
+  ggplot(aes(x = Ano, y = Indice)) + 
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Usuários de Internet no Brasil (% da população)",
+       x = "Ano",
+       y = "Percentual (%)")
+```
+
+A série mostra que o percentual de usuários de internet no Brasil cresceu
+de forma expressiva ao longo dos anos, partindo de quase zero em 1990 e
+atingindo cerca de 84% em 2024. O crescimento foi acelerado entre os
+anos de 2000 a 2020, desacelerando nos anos mais recentes.
+
+## Análise Descritiva
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Estatísticas descritivas
+desc <- serie_anual %>%
+  as_tibble() %>%
+  summarise(
+    `Nº de Observações` = n(),
+    Média               = mean(Indice, na.rm = TRUE),
+    Mediana             = median(Indice, na.rm = TRUE),
+    Variância           = var(Indice, na.rm = TRUE),
+    `Desvio Padrão`     = sd(Indice, na.rm = TRUE),
+    Mínimo              = min(Indice, na.rm = TRUE),
+    Máximo              = max(Indice, na.rm = TRUE),
+    `CV (%)`            = (sd(Indice, na.rm = TRUE) / mean(Indice, na.rm = TRUE)) * 100
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 2)))
+
+desc %>%
+  kbl(caption = "Estatísticas descritivas — Usuários de Internet no Brasil (%)") %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = TRUE,
+    font_size  = 14
+  )
+```
+
+A série é composta por `r nrow(serie_anual)` observações anuais,
+cobrindo o período de 1990 a 2024. A média do percentual de usuários ao
+longo de todo o período foi de aproximadamente
+`r round(mean(serie_anual$Indice, na.rm=TRUE), 2)`%, valor que reflete
+a forte assimetria da série: os primeiros anos apresentam percentuais
+próximos de zero, enquanto os anos mais recentes se aproximam de 85%.
+O coeficiente de variação elevado confirma essa grande dispersão ao
+longo do tempo, característica esperada em séries com tendência de
+crescimento tão acentuada.
+
+## ACF e PACF das series
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# ACF 
+acf_Indice = serie_anual %>% 
+  ACF(Indice, lag_max = 20) %>% 
+  autoplot() + labs(title="ACF da variável Indice")
+
+# PACF
+pacf_Indice = serie_anual %>% 
+  PACF(Indice, lag_max = 20) %>% 
+  autoplot() + labs(title="PACF da variável Indice")
+
+gridExtra::grid.arrange(acf_Indice, pacf_Indice, ncol=2)
+```
+
+A ACF mostra autocorrelações muito altas que decaem de forma lenta e
+gradual, o que é um sinal claro de forte tendência na série. Os valores
+passados continuam influenciando os valores futuros por muitos períodos.
+
+A PACF apresenta um pico expressivo apenas no primeiro lag e cai logo
+após nos lags seguintes, indicando que a dependência temporal se
+concentra principalmente na observação imediatamente anterior. Esses
+dois padrões juntos são típicos de séries não estacionárias com
+tendência persistente.
+
+## Decomposição da série
+
+A decomposição separa a série em tendência, componente sazonal e
+resíduo. Como a série é anual, não há sazonalidade a ser capturada, e a
+sazonalidade acaba se tornando constante. O componente **tendência**
+evidencia o crescimento do acesso da população à internet no Brasil ao
+longo de três décadas.
+
+## Fazendo a previsão para os próximos anos
+
+#### Definindo as bases de treino e teste
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+## Forecast
+
+# Treino: 1990 até 2020
+train <- serie_anual %>%
+  filter_index("1990" ~ "2020"); train
+
+# Teste: 2021 em diante 
+test <- serie_anual %>%
+  filter_index("2021" ~ .); test
+```
+
+Nossa base de treino para os modelos começa em 1990 até 2000 contendo 31 observações, já a base de teste começa em 2021 contendo 4 observações para uma previsão de 4 anos.
+
+# Previsão utilizando o modelo ETS
+
+## Estimando os modelos ETS
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+library(fpp3)  
+
+Indice_fit <- train %>%
+  model(
+    # SES (Suavização Exponencial Simples)
+    SES = ETS(Indice ~ error("A") + trend("N") + season("N")),
+    
+    # Holt aditivo
+    HoltA = ETS(Indice ~ error("A") + trend("A") + season("N")),
+    
+    # Holt multiplicativo
+    HoltM = ETS(Indice ~ error("M") + trend("A") + season("N")),
+    
+    # Holt amortecido aditivo
+    HoltDampA = ETS(Indice ~ error("A") + trend("Ad") + season("N")),
+    
+    # Holt amortecido multiplicativo
+    HoltDampM = ETS(Indice ~ error("M") + trend("Ad") + season("N"))
+  )
+Indice_fit
+```
+
+Foi estimado um conjunto de 5 modelos ETS no conjunto de treino. Como a
+série é anual e não apresenta componente sazonal, todos os modelos têm
+sazonalidade ausente (`N`). A notação representa (erro, tendência,
+sazonalidade):
+
+-   `ETS(A,N,N)` para o SES, sem tendência
+
+-   `ETS(A,A,N)` para o Holt Aditivo, com tendência aditiva
+
+-   `ETS(M,A,N)` para o Holt Multiplicativo, com tendência e erro
+    multiplicativo
+
+-   `ETS(A,Ad,N)` para o Holt Amortecido Aditivo, com tendência que
+    desacelera e erro aditivo
+
+-   `ETS(M,Ad,N)` para o Holt Amortecido Multiplicativo, com tendência
+    que desacelera e erro multiplicativo
+
+## Criando o gráfico com as previsões
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+Indice_fc <- Indice_fit %>% forecast(h = 4)
+
+# Grafico da serie com as previsoes 
+Indice_fc %>%
+  autoplot(train, level = NULL) +
+  autolayer(
+    test,
+    colour = "black"
+  ) +
+  labs(
+    y = "Usuários de Internet (%)",
+    title = "Previsão — Modelos ETS"
+  ) +
+  guides(colour = guide_legend(title = "Forecast"))
+```
+
+O gráfico apresenta as previsões dos 5 modelos ETS para os 4 anos do
+período de teste, comparadas com os valores reais em preto. Modelos
+com tendência não amortecida tendem a superestimar o crescimento,
+enquanto os modelos amortecidos projetam uma desaceleração mais
+compatível com o comportamento recente da série.
+
+## Medidas de avaliacao
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+accuracy(Indice_fc, test) %>%
+  select(.model, ME, RMSE, MAE, MPE, MAPE, MASE, RMSSE, ACF1) %>%
+  arrange(MAPE) %>%
+  rename(Modelo = .model) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 4))) %>%
+  kbl(caption = "Métricas de avaliação — Modelos ETS") %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = TRUE,
+    font_size  = 14
+  ) %>%
+  row_spec(1, bold = TRUE, background = "")
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod_best <- serie_anual %>%
+  model(
+    SES = ETS(Indice ~ error("A") + trend("N") + season("N"))
+  )
+
+mod_best
+```
+
+A tabela de métricas permite comparar o desempenho dos modelos no
+período de teste. O **SES** apresentou o menor MAPE entre os modelos
+avaliados, indicando que a série de usuários de internet no Brasil
+atingiu um patamar de estabilização tão pronunciado nos anos mais
+recentes que a inclusão de componente de tendência, mesmo quando
+amortecida, acaba prejudicando a previsão. Ao ponderar apenas o nível
+recente da série, o SES conseguiu capturar melhor o comportamento
+observado no período de teste.
+
+## Criando a previsão com o melhor modelo
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+Indice_fc <- mod_best %>% forecast(h = 4)
+
+# Grafico da serie com as previsoes 
+Indice_fc %>%
+  autoplot(serie_anual, level = NULL) +
+  autolayer(
+    test,
+    colour = "black"
+  ) +
+  labs(
+    y = "Usuários de Internet (%)",
+    title = "Previsão — Melhor Modelo ETS (SES)"
+  ) +
+  guides(colour = guide_legend(title = "Forecast"))
+
+```
+
+Com o SES estimado em toda a série, as previsões para os próximos anos
+refletem a estabilização do crescimento, compatível com o comportamento
+recente da série. O modelo projeta um percentual de usuários se
+mantendo próximo ao nível atual, sem projetar crescimento adicional.
+
+# Conclusão
+
+Ao longo das últimas décadas, o acesso à internet no Brasil cresceu
+significativamente, alcançando cerca de 84% da população em 2024.
+Apesar desse avanço, observa-se uma desaceleração recente no
+crescimento, sugerindo aproximação de um nível de saturação. Na
+comparação dos modelos de previsão, o SES apresentou o melhor
+desempenho no período de teste, capturando adequadamente essa
+estabilização. Como critério de desempate entre modelos com desempenho
+equivalente, o princípio da parcimônia favorece o modelo mais simples,
+o que reforça a escolha do SES como modelo final.
+
+# Referência
+
+Os dados utilizados são do Banco Mundial (World Bank), onde foram
+obtidos do FRED, Banco da Reserva Federal de St. Louis.
+
+Disponível em: [FRED -
+ITNETUSERP2BRA](https://fred.stlouisfed.org/series/ITNETUSERP2BRA)

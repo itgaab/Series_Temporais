@@ -1,0 +1,404 @@
+/* ===================== Layout Acadêmico — Azul Marinho ===================== */
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&display=swap');
+
+/* === OVERRIDE TOTAL das variáveis do tema cosmo/Bootstrap === */
+:root,
+[data-bs-theme],
+.quarto-light {
+  --bs-primary: #3b82c4 !important;
+  --bs-primary-rgb: 59, 130, 196 !important;
+  --bs-link-color: #3b82c4 !important;
+  --bs-link-hover-color: #0f2942 !important;
+  --bs-body-color: #1a1a1a !important;
+  --bs-body-bg: #ffffff !important;
+  --bs-border-color: #dde3ea !important;
+}
+
+:root {
+  --navy: #0a1929;
+  --navy-mid: #0f2942;
+  --accent: #3b82c4;
+  --accent-light: #6baed6;
+  --text: #1a1a1a;
+  --text-muted: #555;
+  --border: #dde3ea;
+  --bg: #ffffff;
+}
+
+/* ===== RESET / BASE ===== */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--navy);
+  font-family: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+/* ===== SIDEBAR ===== */
+#TOC,
+nav[role="doc-toc"],
+.quarto-sidebar,
+#quarto-sidebar,
+.sidebar {
+  background-color: var(--navy) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 2rem 1.2rem 2rem 1.2rem !important;
+  min-height: 100vh;
+}
+
+/* Remove qualquer pseudo-elemento extra */
+#TOC::before,
+#TOC::after,
+nav[role="doc-toc"]::before,
+nav[role="doc-toc"]::after {
+  display: none !important;
+}
+
+/* Título SUMÁRIO */
+#TOC .toc-title,
+nav[role="doc-toc"] > h2,
+.quarto-sidebar-title {
+  color: var(--accent-light) !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 2px !important;
+  margin-bottom: 1.1rem !important;
+  padding-bottom: 0.5rem !important;
+  border-bottom: 1px solid rgba(59,130,196,0.3) !important;
+}
+
+/* Links do sumário */
+#TOC a,
+nav[role="doc-toc"] a {
+  color: #b0c8e0 !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  text-decoration: none !important;
+  display: block !important;
+  padding: 0.22rem 0.3rem !important;
+  border-left: 2px solid transparent !important;
+  transition: all 0.15s ease !important;
+  line-height: 1.5 !important;
+}
+
+#TOC a:hover,
+nav[role="doc-toc"] a:hover {
+  color: #ffffff !important;
+  border-left-color: var(--accent) !important;
+  padding-left: 0.7rem !important;
+}
+
+#TOC .active,
+nav[role="doc-toc"] a.active {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border-left-color: var(--accent) !important;
+  padding-left: 0.7rem !important;
+}
+
+#TOC ul, #TOC ol,
+nav[role="doc-toc"] ul,
+nav[role="doc-toc"] ol {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ===== ÁREA DE CONTEÚDO — fundo branco ===== */
+/* Garante que o conteúdo principal fique sobre fundo claro */
+.quarto-body,
+#quarto-content,
+.page-columns,
+.column-body,
+main,
+article,
+#quarto-document-content {
+  background-color: var(--bg) !important;
+}
+
+/* ===== HEADER DO ARTIGO ===== */
+/* Sem bloco colorido — título em preto bold como na imagem */
+#title-block-header,
+.quarto-title-block {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  padding: 2.5rem 2rem 1rem 2rem !important;
+  margin-bottom: 1.5rem !important;
+  border-bottom: 2px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+#title-block-header::after,
+.quarto-title-block::after {
+  display: none !important;
+}
+
+#title-block-header .title,
+.quarto-title {
+  color: var(--text) !important;
+  font-size: 1.9rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  line-height: 1.25 !important;
+  font-family: 'Source Sans 3', sans-serif !important;
+  letter-spacing: 0.2px !important;
+}
+
+#title-block-header .subtitle,
+.quarto-title-subtitle {
+  color: var(--text-muted) !important;
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  font-style: italic !important;
+  margin-top: 0.4rem !important;
+}
+
+.quarto-title-meta-heading {
+  color: var(--text-muted) !important;
+  font-size: 0.72rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  font-weight: 600 !important;
+}
+
+.quarto-title-meta-contents,
+#title-block-header .author,
+#title-block-header .date {
+  color: var(--text) !important;
+  font-size: 0.9rem !important;
+}
+
+#title-block-header .quarto-title-meta {
+  border-top: 1px solid var(--border) !important;
+  padding-top: 0.8rem !important;
+  margin-top: 1rem !important;
+}
+
+/* ===== CABEÇALHOS ===== */
+h1, h2 {
+  color: var(--text);
+  font-weight: 700;
+  margin-top: 2.2rem;
+}
+
+h2 {
+  font-size: 1.4rem;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.35rem;
+}
+
+h3 {
+  color: var(--navy-mid);
+  font-size: 1.08rem;
+  font-weight: 700;
+  border-left: 4px solid var(--accent);
+  padding-left: 0.65rem;
+  margin-top: 1.6rem;
+}
+
+h4 {
+  color: #333;
+  font-weight: 600;
+}
+
+.header-section-number {
+  color: var(--accent);
+  font-weight: 400;
+  margin-right: 0.3rem;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ===== CALLOUTS ===== */
+.callout {
+  border-radius: 5px;
+  border-left-width: 5px;
+}
+.callout-note {
+  background-color: #eef6fd;
+  border-left-color: var(--accent);
+}
+.callout-warning {
+  background-color: #eef4fb;
+  border-left-color: var(--accent-light);
+}
+
+/* ===== TABELAS ===== */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.3rem 0;
+  font-size: 0.92rem;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+}
+
+thead th {
+  background-color: var(--navy);
+  color: #fff !important;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 0.6rem 1rem;
+}
+
+tbody td {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #eaeef2;
+}
+
+tbody tr:nth-child(even) { background-color: #f7fafd; }
+tbody tr:hover { background-color: #edf3fa; }
+
+caption {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.85rem;
+  caption-side: top;
+  text-align: left;
+  margin-bottom: 0.4rem;
+}
+
+/* ===== FIGURAS ===== */
+figure {
+  text-align: center;
+  margin: 1.8rem 0;
+  background: #fafbfd;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+figcaption, .figure-caption {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+img { border-radius: 3px; max-width: 100%; }
+
+/* ===== CÓDIGO ===== */
+code {
+  background-color: #eef3f8;
+  color: var(--navy-mid);
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.87em;
+}
+
+pre {
+  background-color: var(--navy);
+  border-radius: 5px;
+  padding: 1rem 1.2rem;
+  border-left: 3px solid var(--accent);
+}
+
+pre code {
+  background: transparent;
+  color: #cde0f5;
+  border: none;
+  padding: 0;
+}
+
+details > summary {
+  background: var(--navy-mid);
+  color: #a8c4de;
+  border: 1px solid #1c4d7a;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  padding: 0.2rem 0.8rem;
+  cursor: pointer;
+  list-style: none;
+}
+details > summary:hover { background: #1c4d7a; color: #fff; }
+
+/* ===== RESUMO ===== */
+#resumo {
+  background: #f8fbff;
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--navy-mid);
+  border-radius: 5px;
+  padding: 1.2rem 1.5rem;
+}
+
+/* ===== REFERÊNCIAS ===== */
+#refs p {
+  margin-bottom: 0.9rem;
+  padding-left: 1.5rem;
+  text-indent: -1.5rem;
+  font-size: 0.91rem;
+  line-height: 1.6;
+}
+
+/* ===== HR ===== */
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+strong { color: var(--navy-mid); font-weight: 700; }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: #1c4d7a; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ===== TELA CHEIA — sem margens laterais ===== */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Remove margens automáticas do container do Quarto */
+.quarto-container,
+#quarto-content,
+.page-full,
+.page-columns,
+.column-page,
+.column-body-outset,
+#quarto-document-content {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Sidebar ocupa altura total, fixa na borda esquerda */
+#TOC,
+nav[role="doc-toc"],
+.quarto-sidebar,
+#quarto-sidebar,
+.sidebar {
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  overflow-y: auto !important;
+  flex-shrink: 0 !important;
+}
+
+/* Conteúdo principal sem padding lateral excessivo */
+main.content,
+#quarto-document-content main,
+.column-body,
+article {
+  padding: 0 3rem 3rem 3rem !important;
+  max-width: 100% !important;
+}
+
+/* Header do artigo sem margem lateral */
+#title-block-header,
+.quarto-title-block {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding: 2.5rem 3rem 1.2rem 3rem !important;
+}
