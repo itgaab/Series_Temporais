@@ -1,6 +1,6 @@
 /* ===================== Layout Acadêmico — Azul Marinho ===================== */
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&display=swap');
-
+ 
 /* === OVERRIDE TOTAL das variáveis do tema cosmo/Bootstrap === */
 :root,
 [data-bs-theme],
@@ -13,7 +13,7 @@
   --bs-body-bg: #ffffff !important;
   --bs-border-color: #dde3ea !important;
 }
-
+ 
 :root {
   --navy: #0a1929;
   --navy-mid: #0f2942;
@@ -24,7 +24,7 @@
   --border: #dde3ea;
   --bg: #ffffff;
 }
-
+ 
 /* ===== RESET / BASE ===== */
 html, body {
   margin: 0;
@@ -34,7 +34,7 @@ html, body {
   font-size: 1rem;
   color: var(--text);
 }
-
+ 
 /* ===== SIDEBAR ===== */
 #TOC,
 nav[role="doc-toc"],
@@ -47,7 +47,7 @@ nav[role="doc-toc"],
   padding: 2rem 1.2rem 2rem 1.2rem !important;
   min-height: 100vh;
 }
-
+ 
 /* Remove qualquer pseudo-elemento extra */
 #TOC::before,
 #TOC::after,
@@ -55,7 +55,7 @@ nav[role="doc-toc"]::before,
 nav[role="doc-toc"]::after {
   display: none !important;
 }
-
+ 
 /* Título SUMÁRIO */
 #TOC .toc-title,
 nav[role="doc-toc"] > h2,
@@ -69,7 +69,7 @@ nav[role="doc-toc"] > h2,
   padding-bottom: 0.5rem !important;
   border-bottom: 1px solid rgba(59,130,196,0.3) !important;
 }
-
+ 
 /* Links do sumário */
 #TOC a,
 nav[role="doc-toc"] a {
@@ -83,14 +83,14 @@ nav[role="doc-toc"] a {
   transition: all 0.15s ease !important;
   line-height: 1.5 !important;
 }
-
+ 
 #TOC a:hover,
 nav[role="doc-toc"] a:hover {
   color: #ffffff !important;
   border-left-color: var(--accent) !important;
   padding-left: 0.7rem !important;
 }
-
+ 
 #TOC .active,
 nav[role="doc-toc"] a.active {
   color: #ffffff !important;
@@ -98,7 +98,7 @@ nav[role="doc-toc"] a.active {
   border-left-color: var(--accent) !important;
   padding-left: 0.7rem !important;
 }
-
+ 
 #TOC ul, #TOC ol,
 nav[role="doc-toc"] ul,
 nav[role="doc-toc"] ol {
@@ -106,7 +106,7 @@ nav[role="doc-toc"] ol {
   padding: 0 !important;
   margin: 0 !important;
 }
-
+ 
 /* ===== ÁREA DE CONTEÚDO — fundo branco ===== */
 /* Garante que o conteúdo principal fique sobre fundo claro */
 .quarto-body,
@@ -118,7 +118,7 @@ article,
 #quarto-document-content {
   background-color: var(--bg) !important;
 }
-
+ 
 /* ===== HEADER DO ARTIGO ===== */
 /* Sem bloco colorido — título em preto bold como na imagem */
 #title-block-header,
@@ -130,12 +130,12 @@ article,
   border-bottom: 2px solid var(--border) !important;
   box-shadow: none !important;
 }
-
+ 
 #title-block-header::after,
 .quarto-title-block::after {
   display: none !important;
 }
-
+ 
 #title-block-header .title,
 .quarto-title {
   color: var(--text) !important;
@@ -146,7 +146,7 @@ article,
   font-family: 'Source Sans 3', sans-serif !important;
   letter-spacing: 0.2px !important;
 }
-
+ 
 #title-block-header .subtitle,
 .quarto-title-subtitle {
   color: var(--text-muted) !important;
@@ -155,7 +155,7 @@ article,
   font-style: italic !important;
   margin-top: 0.4rem !important;
 }
-
+ 
 .quarto-title-meta-heading {
   color: var(--text-muted) !important;
   font-size: 0.72rem !important;
@@ -163,33 +163,33 @@ article,
   letter-spacing: 1px !important;
   font-weight: 600 !important;
 }
-
+ 
 .quarto-title-meta-contents,
 #title-block-header .author,
 #title-block-header .date {
   color: var(--text) !important;
   font-size: 0.9rem !important;
 }
-
+ 
 #title-block-header .quarto-title-meta {
   border-top: 1px solid var(--border) !important;
   padding-top: 0.8rem !important;
   margin-top: 1rem !important;
 }
-
+ 
 /* ===== CABEÇALHOS ===== */
 h1, h2 {
   color: var(--text);
   font-weight: 700;
   margin-top: 2.2rem;
 }
-
+ 
 h2 {
   font-size: 1.4rem;
   border-bottom: 2px solid var(--accent);
   padding-bottom: 0.35rem;
 }
-
+ 
 h3 {
   color: var(--navy-mid);
   font-size: 1.08rem;
@@ -198,21 +198,21 @@ h3 {
   padding-left: 0.65rem;
   margin-top: 1.6rem;
 }
-
+ 
 h4 {
   color: #333;
   font-weight: 600;
 }
-
+ 
 .header-section-number {
   color: var(--accent);
   font-weight: 400;
   margin-right: 0.3rem;
 }
-
+ 
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
-
+ 
 /* ===== CALLOUTS ===== */
 .callout {
   border-radius: 5px;
@@ -226,7 +226,7 @@ a:hover { text-decoration: underline; }
   background-color: #eef4fb;
   border-left-color: var(--accent-light);
 }
-
+ 
 /* ===== TABELAS ===== */
 table {
   border-collapse: collapse;
@@ -237,25 +237,34 @@ table {
   overflow: hidden;
   box-shadow: 0 1px 6px rgba(0,0,0,0.07);
 }
-
+ 
 thead th {
-  background-color: var(--navy);
+  background-color: var(--accent) !important;
   color: #fff !important;
-  font-weight: 600;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  padding: 0.6rem 1rem;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px !important;
+  padding: 0.6rem 1rem !important;
 }
 
+/* Patch extra — garante azul mesmo com classes Bootstrap/Quarto */
+table thead tr th,
+.table thead th,
+.gt_table thead th,
+.kable thead th {
+  background-color: var(--accent) !important;
+  color: #ffffff !important;
+}
+ 
 tbody td {
   padding: 0.5rem 1rem;
   border-bottom: 1px solid #eaeef2;
 }
-
+ 
 tbody tr:nth-child(even) { background-color: #f7fafd; }
 tbody tr:hover { background-color: #edf3fa; }
-
+ 
 caption {
   color: var(--text-muted);
   font-style: italic;
@@ -264,7 +273,7 @@ caption {
   text-align: left;
   margin-bottom: 0.4rem;
 }
-
+ 
 /* ===== FIGURAS ===== */
 figure {
   text-align: center;
@@ -274,16 +283,16 @@ figure {
   border-radius: 6px;
   padding: 1rem;
 }
-
+ 
 figcaption, .figure-caption {
   color: var(--text-muted);
   font-size: 0.86rem;
   font-style: italic;
   margin-top: 0.5rem;
 }
-
+ 
 img { border-radius: 3px; max-width: 100%; }
-
+ 
 /* ===== CÓDIGO ===== */
 code {
   background-color: #eef3f8;
@@ -292,21 +301,21 @@ code {
   padding: 0.1rem 0.35rem;
   font-size: 0.87em;
 }
-
+ 
 pre {
   background-color: var(--navy);
   border-radius: 5px;
   padding: 1rem 1.2rem;
   border-left: 3px solid var(--accent);
 }
-
+ 
 pre code {
   background: transparent;
   color: #cde0f5;
   border: none;
   padding: 0;
 }
-
+ 
 details > summary {
   background: var(--navy-mid);
   color: #a8c4de;
@@ -318,7 +327,7 @@ details > summary {
   list-style: none;
 }
 details > summary:hover { background: #1c4d7a; color: #fff; }
-
+ 
 /* ===== RESUMO ===== */
 #resumo {
   background: #f8fbff;
@@ -327,7 +336,7 @@ details > summary:hover { background: #1c4d7a; color: #fff; }
   border-radius: 5px;
   padding: 1.2rem 1.5rem;
 }
-
+ 
 /* ===== REFERÊNCIAS ===== */
 #refs p {
   margin-bottom: 0.9rem;
@@ -336,28 +345,28 @@ details > summary:hover { background: #1c4d7a; color: #fff; }
   font-size: 0.91rem;
   line-height: 1.6;
 }
-
+ 
 /* ===== HR ===== */
 hr {
   border: none;
   border-top: 1px solid var(--border);
   margin: 2rem 0;
 }
-
+ 
 strong { color: var(--navy-mid); font-weight: 700; }
-
+ 
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--navy); }
 ::-webkit-scrollbar-thumb { background: #1c4d7a; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-
+ 
 /* ===== TELA CHEIA — sem margens laterais ===== */
 body {
   margin: 0 !important;
   padding: 0 !important;
 }
-
+ 
 /* Remove margens automáticas do container do Quarto */
 .quarto-container,
 #quarto-content,
@@ -371,7 +380,7 @@ body {
   margin: 0 !important;
   padding: 0 !important;
 }
-
+ 
 /* Sidebar ocupa altura total, fixa na borda esquerda */
 #TOC,
 nav[role="doc-toc"],
@@ -385,7 +394,7 @@ nav[role="doc-toc"],
   overflow-y: auto !important;
   flex-shrink: 0 !important;
 }
-
+ 
 /* Conteúdo principal sem padding lateral excessivo */
 main.content,
 #quarto-document-content main,
@@ -394,11 +403,134 @@ article {
   padding: 0 3rem 3rem 3rem !important;
   max-width: 100% !important;
 }
-
+ 
 /* Header do artigo sem margem lateral */
 #title-block-header,
 .quarto-title-block {
   margin-left: 0 !important;
   margin-right: 0 !important;
   padding: 2.5rem 3rem 1.2rem 3rem !important;
+}
+ 
+/* ── Caption/título da tabela em azul ── */
+caption, .table-caption, figcaption.table-caption {
+  color: var(--accent) !important;
+  font-style: normal !important;
+  font-weight: 600 !important;
+}
+
+
+/* ── Parágrafos justificados ── */
+p, li {
+  text-align: justify !important;
+  hyphens: auto !important;
+}
+
+/* =====================================================================
+   PATCHES — Tela cheia, gaps zero, saídas de código neutras
+   ===================================================================== */
+
+/* ── 1. Sem gap entre sidebar e conteúdo ── */
+.page-columns {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  gap: 0 !important;
+  min-height: 100vh !important;
+}
+
+/* ── 2. Sidebar cola na esquerda, altura total ── */
+#quarto-sidebar,
+.quarto-sidebar,
+#TOC,
+nav[role="doc-toc"] {
+  width: 240px !important;
+  min-width: 240px !important;
+  max-width: 240px !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  border-right: none !important;
+}
+
+/* ── 3. Conteúdo ocupa o restante ── */
+#quarto-content,
+.quarto-content,
+#quarto-document-content {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+}
+
+/* ── 4. Remove margens/gaps extras do grid do Quarto ── */
+.page-columns > * {
+  margin: 0 !important;
+}
+
+/* ── 5. Zerar padding vertical excessivo entre seções ── */
+section, .section {
+  margin-top: 0 !important;
+}
+
+h1 { margin-top: 1.6rem !important; }
+h2 { margin-top: 1.4rem !important; }
+h3 { margin-top: 1.1rem !important; }
+
+p { margin-top: 0 !important; margin-bottom: 0.75rem !important; }
+
+/* ── 6. Saídas de código — fundo neutro cinza-claro ── */
+/* Bloco de output (texto impresso pelo chunk) */
+.cell-output,
+.cell-output-stdout,
+.cell-output-stderr,
+.cell-output-display,
+div.sourceCode + .cell-output,
+pre.sourceCode ~ .cell-output {
+  background-color: #f4f5f7 !important;
+  border: 1px solid #dde3ea !important;
+  border-left: 3px solid #b0bec5 !important;
+  border-radius: 4px !important;
+  padding: 0.65rem 1rem !important;
+  margin-top: 0.4rem !important;
+  margin-bottom: 0.9rem !important;
+}
+
+.cell-output pre,
+.cell-output-stdout pre,
+.cell-output-stderr pre {
+  background-color: transparent !important;
+  border: none !important;
+  border-left: none !important;
+  color: #37474f !important;
+  font-size: 0.84rem !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.cell-output pre code,
+.cell-output-stdout pre code {
+  background: transparent !important;
+  color: #37474f !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* ── 7. Container do chunk (cell) — sem margem vertical dupla ── */
+.cell {
+  margin-bottom: 1rem !important;
+}
+
+/* ── 8. Navbar / header de página — esconde se vazio ── */
+#quarto-header:empty,
+nav.navbar:empty {
+  display: none !important;
+}
+
+/* ── 9. Remove faixa branca acima do título ── */
+body > nav,
+.navbar {
+  display: none !important;
+}
+
+#title-block-header,
+.quarto-title-block {
+  margin-top: 0 !important;
 }
