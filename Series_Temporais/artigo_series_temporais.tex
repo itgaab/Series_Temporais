@@ -1,0 +1,968 @@
+% ============================================================
+%  Artigo: Análise de Sazonalidade em Série Temporal de
+%          Embarques Aéreos nos EUA e Série de Usuários de
+%          Internet no Brasil
+%  Autor : Ítalo Gabriel
+%  Inst. : Universidade Estadual da Paraíba (UEPB)
+% ============================================================
+\documentclass[12pt, a4paper]{article}
+
+% ── Codificação e idioma ─────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+
+\setlength{\headheight}{15pt}
+
+% ── Tipografia ───────────────────────────────────────────────
+\usepackage{times}          % Times New Roman
+\usepackage{microtype}
+\usepackage{indentfirst}
+
+% ── Matemática ───────────────────────────────────────────────
+\usepackage{amsmath, amssymb}
+
+% ── Layout ───────────────────────────────────────────────────
+\usepackage[top=3cm, bottom=2cm, left=3cm, right=2cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% ── Figuras e tabelas ────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\captionsetup{font=small, labelfont=bf}
+
+% ── Cores e links ────────────────────────────────────────────
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+
+% ── Referências ──────────────────────────────────────────────
+\usepackage[round, authoryear]{natbib}
+\bibliographystyle{plainnat}
+
+% ── Cabeçalho / rodapé ───────────────────────────────────────
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small Análise de Séries Temporais com Tendência e Sazonalidade}
+\lhead{\small UEPB -- Séries Temporais}
+\cfoot{\thepage}
+
+% ── Definições de comandos auxiliares ────────────────────────
+\newcommand{\pkg}[1]{\texttt{#1}}
+
+% ============================================================
+\begin{document}
+
+% ── Capa ABNT (sem cabeçalho/rodapé) ────────────────────────
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+
+\includegraphics[height=3cm]{Marca_UEPB.png}
+
+\vspace{0.5cm}
+
+\textbf{UNIVERSIDADE ESTADUAL DA PARAÍBA -- UEPB\\
+CENTRO DE CIÊNCIAS E TECNOLOGIA -- CCT\\
+DEPARTAMENTO DE ESTATÍSTICA -- DE\\
+CURSO DE BACHARELADO EM ESTATÍSTICA\\
+DISCIPLINA: ANÁLISE DE SÉRIES TEMPORAIS\\
+PROFº DR. PEDRO MONTEIRO DE ALMEIDA JÚNIOR}
+
+\vspace{4cm}
+
+\textbf{\large ÍTALO GABRIEL DA SILVA}
+
+\vspace{4cm}
+
+{\LARGE \textbf{Análise de Séries Temporais com Sazonalidade e
+Tendência: Embarques em Voos Domésticos e Internacionais de
+Companhias Aéreas dos EUA e Usuários de Internet no Brasil}}
+
+\vfill
+
+\textbf{
+Campina Grande -- PB\\
+2026
+}
+
+\end{center}
+\end{titlepage}
+
+% ── Resumo ───────────────────────────────────────────────────
+\thispagestyle{plain}
+\begin{abstract}
+A análise de séries temporais constitui ferramenta fundamental para compreender fenômenos que evoluem ao longo do tempo, permitindo identificar padrões como tendência e sazonalidade e auxiliando na construção de modelos de previsão. Este trabalho tem como objetivo analisar o comportamento temporal de duas séries com características distintas: o número de embarques mensais em voos domésticos e internacionais de companhias aéreas dos Estados Unidos, obtido via plataforma FRED, no período de janeiro de 2000 a janeiro de 2026; e o percentual anual de usuários de internet no Brasil, obtido via FRED, no período de 1990 a 2024. A primeira série apresenta tendência de crescimento associada a forte sazonalidade anual, enquanto a segunda exibe apenas tendência ascendente, sem padrão sazonal. As séries foram estruturadas no ambiente R com o pacote \pkg{tsibble} e submetidas a análise exploratória, incluindo gráficos sazonais, funções de autocorrelação (ACF e PACF) e decomposição clássica. Para previsão, foram ajustados modelos de suavização exponencial (ETS) e modelos ARIMA e SARIMA, avaliados no conjunto de teste por métricas de acurácia, com destaque para o MAPE como critério principal de seleção. Os resultados indicaram que o modelo Holt-Winters Multiplicativo apresentou o melhor desempenho para a série de embarques aéreos (MAPE de aproximadamente 1,82\%), enquanto o modelo ARIMA(2,2,0) obteve o melhor resultado para a série de usuários de internet (MAPE de aproximadamente 0,26\%). Os achados reforçam a importância da análise exploratória na escolha de modelos adequados às características de cada série.
+
+\vspace{0.5cm}
+\medskip\noindent
+\textbf{Palavras-chave:} Séries temporais; Modelos ETS; Modelos ARIMA e SARIMA; Transporte aéreo; Acesso à internet.
+\end{abstract}
+
+\newpage
+\thispagestyle{plain}
+\tableofcontents
+\newpage
+
+% ============================================================
+
+\section{Introdução}
+\label{sec:intro}
+
+A análise de séries temporais constitui uma importante área da Estatística voltada ao estudo de observações coletadas sequencialmente ao longo do tempo. Diferentemente de conjuntos de dados independentes, as observações de uma série temporal geralmente apresentam dependência temporal, de modo que valores passados podem influenciar valores futuros (CHATFIELD, 2004)\cite{chatfield2004}. O principal objetivo da análise de séries temporais é compreender os mecanismos geradores dos dados e utilizar esse conhecimento para descrever padrões e realizar previsões (BOX et al., 2015)\cite{box2015}.
+
+O comportamento de uma série temporal pode ser compreendido por meio da identificação de seus principais componentes, entre os quais se destacam a tendência, a sazonalidade, os ciclos e a componente aleatória (ANTUNES; CARDOSO, 2015)\cite{antunes2015}. A análise desses elementos permite compreender a dinâmica dos dados ao longo do tempo e auxilia na construção de modelos adequados para descrição e previsão da série.
+
+Entre os métodos amplamente utilizados na modelagem de séries temporais, destacam-se os modelos de suavização exponencial, que atribuem pesos decrescentes às observações passadas, priorizando os valores mais recentes (HYNDMAN; ATHANASOPOULOS, 2021)\cite{hyndman2021fpp3}. Esses modelos apresentam bom desempenho prático devido à simplicidade, flexibilidade e capacidade de representar diferentes combinações de tendência e sazonalidade, destacando-se os métodos de Holt e Holt-Winters, amplamente empregados em previsão de demanda.
+
+Além da modelagem propriamente dita, ferramentas como a decomposição de séries temporais, a função de autocorrelação (ACF) e a função de autocorrelação parcial (PACF) são amplamente utilizadas para auxiliar na identificação da estrutura temporal dos dados (MORETTIN; TOLOI, 2018)\cite{morettin2018}. Essas técnicas permitem avaliar a presença de dependência serial, tendências e padrões sazonais, fornecendo informações importantes para a compreensão do comportamento da série e para a seleção de modelos apropriados.
+
+O transporte aéreo desempenha um papel fundamental na economia mundial, contribuindo para a integração de mercados, a mobilidade de pessoas e o desenvolvimento econômico (OLIVEIRA, 2009)\cite{oliveira2009}. A demanda por esse serviço está fortemente relacionada à distribuição de renda da população, de modo que reduções na desigualdade tendem a intensificar a sensibilidade da demanda aos preços das passagens (FRAZÃO; OLIVEIRA, 2020)\cite{frazao2020}. Nesse contexto, compreender sua evolução ao longo do tempo é essencial para o planejamento do setor. Para isso, este estudo utiliza o índice de embarques mensais de passageiros em voos regulares operados por companhias aéreas dos Estados Unidos, obtido junto ao Bureau of Transportation Statistics (BTS) por meio da plataforma Federal Reserve Economic Data (FRED)\cite{fred_enplane}.
+
+Complementarmente, também é analisada a série anual do percentual de usuários de internet no Brasil. A expansão do acesso à internet nas últimas décadas está diretamente relacionada aos avanços tecnológicos, à ampliação da infraestrutura de telecomunicações e ao processo de inclusão digital da população (UIT, 2023)\cite{uit2023}. Dessa forma, a análise dessa série permite investigar um contexto distinto daquele observado no setor aéreo, caracterizado principalmente por uma trajetória ascendente ao longo do tempo. Para isso, este estudo utiliza a série anual do percentual de indivíduos que utilizaram a internet no Brasil, obtida junto ao Banco Mundial (World Bank) por meio da plataforma Federal Reserve Economic Data (FRED)\cite{fred_internet}.
+
+Diante desse contexto, o presente trabalho tem como objetivo analisar o comportamento temporal das séries de embarques aéreos nos Estados Unidos e do percentual de usuários de internet no Brasil, identificando seus principais padrões e avaliando o desempenho de diferentes modelos de suavização exponencial para fins de previsão.
+
+% ============================================================
+\section{Materiais e Métodos}
+\label{sec:metodos}
+
+\subsection{Conjunto de Dados e Pré-processamento}
+
+Os dados foram coletados a partir do Banco da Reserva Federal de St. Louis (FRED)\cite{fred}, sendo organizados em duas colunas: data (mensal e anual) e índice (embarques em voos e percentual de usuários com internet). As datas
+foram convertidas para o formato \texttt{yearmonth} (mensal) e \texttt{year} (anual), e a série foi
+estruturada utilizando o pacote \pkg{tsibble} dentro do R, o que permite utilizar o ecossistema moderno de séries temporais \citep{wang2020tsibble}.
+
+A série mensal com sazonalidade embarques em voos domésticos e internacionais regulares de passageiros de companhias aéreas dos EUA\cite{fred_enplane} ocorre entre o período de janeiro de 2000 a janeiro de 2026, contendo 313 observações. Já a série anual com tendência Usuários com Internet no Brasil\cite{fred_internet} ocorre entre o período de 1990 a 2024 contendo 35 observações. Para avaliação dos modelos, foi adotada a seguinte divisão para cada série:
+
+\textbf{Série mensal com sazonalidade:}
+\begin{itemize}
+  \item \textbf{Conjunto de treino:} janeiro/2000 a janeiro/2025
+        (301 observações);
+  \item \textbf{Conjunto de teste:} fevereiro/2025 a janeiro/2026
+        (12 observações).
+\end{itemize}
+
+\textbf{Série anual com tendência:}
+\begin{itemize}
+  \item \textbf{Conjunto de treino:} 1990 a 2020
+      (31 observações);
+  \item \textbf{Conjunto de teste:} 2021 a 2024
+        (4 observações).
+\end{itemize}
+
+\subsection{Análise Exploratória}
+
+A análise exploratória compreendeu:
+\begin{itemize}
+  \item Visualização da série original;
+  \item Análise descritiva dos dados;
+  \item Gráfico sazonal (\pkg{gg\_season}) e gráfico de subséries
+        (\pkg{gg\_subseries}) para identificar a estrutura mensal da
+        sazonalidade;
+  \item Funções de Autocorrelação (ACF) e Autocorrelação Parcial
+        (PACF) com até 20 \emph{lags};
+\end{itemize}
+
+A função de autocorrelação (ACF) mede o grau de associação linear entre observações da série separadas por uma defasagem (\emph{lag}) $k$, sendo estimada por:
+\begin{equation}
+  r_k = \frac{\displaystyle\sum_{t=k+1}^{T}(y_t-\bar{y})(y_{t-k}-\bar{y})}{\displaystyle\sum_{t=1}^{T}(y_t-\bar{y})^2}
+\end{equation}
+em que $y_t$ representa o valor da série no instante $t$, $\bar{y}$ é a média amostral e $T$ é o número total de observações.
+
+A função de autocorrelação parcial (PACF), por sua vez, mede a correlação entre $y_t$ e $y_{t-k}$ após remover o efeito das defasagens intermediárias $y_{t-1}, y_{t-2}, \dots, y_{t-k+1}$, sendo obtida por meio da recursão de Durbin-Levinson:
+\begin{equation}
+  \phi_{kk} = \frac{\displaystyle r_k - \sum_{j=1}^{k-1}\phi_{k-1,j}\,r_{k-j}}{\displaystyle 1-\sum_{j=1}^{k-1}\phi_{k-1,j}\,r_j}\,, \qquad
+  \phi_{kj} = \phi_{k-1,j}-\phi_{kk}\,\phi_{k-1,k-j}\,, \quad j=1,\dots,k-1
+\end{equation}
+em que $\phi_{kk}$ corresponde ao valor da PACF na defasagem $k$.
+
+\begin{itemize}
+    \item Decomposição clássica aditiva e multiplicativa da série.
+\end{itemize}
+Para a decomposição clássica, a série $y_t$ é representada pela combinação de três componentes: tendência-ciclo ($T_t$), sazonalidade ($S_t$) e resíduo ($R_t$). No esquema aditivo:
+\begin{equation}
+  y_t = T_t + S_t + R_t
+\end{equation}
+e no esquema multiplicativo:
+\begin{equation}
+  y_t = T_t \times S_t \times R_t
+\end{equation}
+A componente de tendência-ciclo é estimada por meio de uma média móvel centrada de ordem igual ao período sazonal $m$, $\hat{T}_t = \text{MM}_{2\times m}(y_t)$; a componente sazonal $\hat{S}_t$ é obtida pela média dos valores destendenciados ($y_t-\hat{T}_t$, no caso aditivo, ou $y_t/\hat{T}_t$, no caso multiplicativo) para cada período sazonal; e o resíduo é calculado como $\hat{R}_t = y_t-\hat{T}_t-\hat{S}_t$ (aditivo) ou $\hat{R}_t = y_t/(\hat{T}_t\hat{S}_t)$ (multiplicativo).
+
+\subsection{Modelos de Suavização Exponencial (ETS) para série com tendência e sazonalidade}
+
+Os modelos ETS \citep{hyndman2008forecasting} são compostos
+por meio de três componentes: erro ($E$), tendência ($T$) e
+sazonalidade ($S$), em que cada componente pode ser Aditivo (A), Multiplicativo
+(M) ou Ausente (N). Foram estimados os seguintes modelos para cada série:
+
+\begin{table}[H]
+  \centering
+  \caption{Modelos ETS estimados para série sazonal.}
+  \label{tab:ets_sazonal}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Sigla} & \textbf{Notação ETS} & \textbf{Descrição} \\
+    \midrule
+    SES     & ETS(A,N,N) & Suavização Exponencial Simples \\
+    HoltA   & ETS(A,A,N) & Holt Aditivo \\
+    HoltM   & ETS(M,A,N) & Holt Multiplicativo \\
+    HW\_Add  & ETS(A,A,A) & Holt-Winters Aditivo \\
+    HW\_Mult & ETS(M,A,M) & Holt-Winters Multiplicativo \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Modelos ETS estimados para série com tendência.}
+  \label{tab:ets_tendencia}
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Sigla} & \textbf{Notação ETS} & \textbf{Descrição} \\
+    \midrule
+    SES     & ETS(A,N,N) & Suavização Exponencial Simples \\
+    HoltA   & ETS(A,A,N) & Holt Aditivo \\
+    HoltM   & ETS(M,A,N) & Holt Multiplicativo \\
+    HWDampA  & ETS(A,Ad,N) & Holt-Winters Amortecido Aditivo \\
+    HWDampM & ETS(M,Ad,N) & Holt-Winters Amortecido Multiplicativo \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Considerando $\ell_t$ o nível, $b_t$ a tendência, $s_t$ a componente sazonal, $m$ o período sazonal, $h$ o horizonte de previsão, $\alpha,\beta^{*},\gamma\in[0,1]$ os parâmetros de suavização e $\phi\in(0,1)$ o parâmetro de amortecimento, as equações de cada modelo são apresentadas a seguir.
+
+\textbf{Suavização Exponencial Simples (SES):}
+\begin{equation}
+  \hat{y}_{t+h|t}=\ell_t\,, \qquad \ell_t=\alpha y_t+(1-\alpha)\ell_{t-1}
+\end{equation}
+
+\textbf{Holt Aditivo:}
+\begin{equation}
+  \hat{y}_{t+h|t}=\ell_t+hb_t
+\end{equation}
+\begin{equation}
+  \ell_t=\alpha y_t+(1-\alpha)(\ell_{t-1}+b_{t-1})\,, \qquad b_t=\beta^{*}(\ell_t-\ell_{t-1})+(1-\beta^{*})b_{t-1}
+\end{equation}
+
+\textbf{Holt-Winters Aditivo:}
+\begin{equation}
+  \hat{y}_{t+h|t}=\ell_t+hb_t+s_{t+h-m(k+1)}
+\end{equation}
+\begin{equation}
+  \ell_t=\alpha(y_t-s_{t-m})+(1-\alpha)(\ell_{t-1}+b_{t-1})
+\end{equation}
+\begin{equation}
+  b_t=\beta^{*}(\ell_t-\ell_{t-1})+(1-\beta^{*})b_{t-1}\,, \qquad s_t=\gamma(y_t-\ell_{t-1}-b_{t-1})+(1-\gamma)s_{t-m}
+\end{equation}
+
+\textbf{Holt-Winters Multiplicativo:}
+\begin{equation}
+  \hat{y}_{t+h|t}=(\ell_t+hb_t)\,s_{t+h-m(k+1)}
+\end{equation}
+\begin{equation}
+  \ell_t=\alpha\dfrac{y_t}{s_{t-m}}+(1-\alpha)(\ell_{t-1}+b_{t-1})
+\end{equation}
+\begin{equation}
+  b_t=\beta^{*}(\ell_t-\ell_{t-1})+(1-\beta^{*})b_{t-1}\,, \qquad s_t=\gamma\dfrac{y_t}{\ell_{t-1}+b_{t-1}}+(1-\gamma)s_{t-m}
+\end{equation}
+
+\textbf{Tendência Amortecida (HWDampA e HWDampM):}
+\begin{equation}
+  \hat{y}_{t+h|t}=\ell_t+(\phi+\phi^2+\dots+\phi^h)b_t
+\end{equation}
+\begin{equation}
+  \ell_t=\alpha y_t+(1-\alpha)(\ell_{t-1}+\phi b_{t-1})\,, \qquad b_t=\beta^{*}(\ell_t-\ell_{t-1})+(1-\beta^{*})\phi b_{t-1}
+\end{equation}
+
+em que $k$ é a parte inteira de $(h-1)/m$, garantindo que sejam utilizadas as estimativas sazonais do último ano completo disponível.
+
+\subsection{Modelos ARIMA e SARIMA}
+
+Complementando aos modelos de suavização exponencial, foram também ajustados modelos autorregressivos de médias móveis (ARIMA) para a série sem sazonalidade, e sua extensão sazonal (SARIMA) para a série com sazonalidade.
+
+Um processo ARIMA$(p,d,q)$ é definido a partir da combinação de um componente autorregressivo de ordem $p$, um componente de médias móveis de ordem $q$ e um número $d$ de diferenciações aplicadas à série para torná-la estacionária. Considerando $B$ o operador de defasagem ($By_t = y_{t-1}$), $\phi(B)$ o polinômio autorregressivo e $\theta(B)$ o polinômio de médias móveis, o modelo ARIMA$(p,d,q)$ é expresso por:
+\begin{equation}
+  \phi(B)(1-B)^d y_t = \theta(B)\varepsilon_t
+\end{equation}
+em que $\varepsilon_t \sim \text{RB}(0, \sigma^2)$, com média zero e variância constante, e
+\begin{equation}
+  \phi(B) = 1-\phi_1 B-\phi_2 B^2-\dots-\phi_p B^p\,, \qquad
+  \theta(B) = 1+\theta_1 B+\theta_2 B^2+\dots+\theta_q B^q
+\end{equation}
+
+Para séries com sazonalidade, o modelo é estendido para o SARIMA$(p,d,q)(P,D,Q)[m]$, que incorpora componentes autorregressivos e de médias móveis sazonais, além de diferenciações sazonais, sendo $m$ o período sazonal. Considerando $\Phi(B^m)$ o polinômio autorregressivo sazonal e $\Theta(B^m)$ o polinômio de médias móveis sazonal, o modelo é dado por:
+\begin{equation}
+  \phi(B)\,\Phi(B^m)\,(1-B)^d(1-B^m)^D y_t = \theta(B)\,\Theta(B^m)\,\varepsilon_t
+\end{equation}
+em que
+\begin{equation}
+  \Phi(B^m) = 1-\Phi_1 B^m-\dots-\Phi_P B^{mP}\,, \qquad
+  \Theta(B^m) = 1+\Theta_1 B^m+\dots+\Theta_Q B^{mQ}
+\end{equation}
+
+A necessidade de diferenciação, tanto para remoção de tendência ($d$) quanto de sazonalidade ($D$), foi avaliada por meio do teste KPSS (\textit{Kwiatkowski--Phillips--Schmidt--Shin}). Valores da estatística de teste superiores ao valor crítico ao $p$-valor adotado fazem rejeitar a estacionariedade, indicando a necessidade de diferenciação.
+
+As ordens $p$, $q$, $P$ e $Q$ dos modelos foram definidas a partir da análise visual das funções de autocorrelação (ACF) e autocorrelação parcial (PACF) da série diferenciada, complementadas por modelos selecionados de forma automática por meio da função \texttt{ARIMA()} do pacote \pkg{fable} (AutoARIMA/AutoSARIMA), que mostram combinações com base em critérios de informação.
+
+A seleção entre os melhores modelos, no conjunto de treino, foi realizada por meio dos critérios de informação:
+\begin{itemize}
+  \item \textbf{AIC} -- Critério de Informação de Akaike;
+  \item \textbf{AICc} -- Critério de Informação de Akaike Corrigido;
+  \item \textbf{BIC} -- Critério de Informação Bayesiano.
+\end{itemize}
+sendo o modelo com menor valor de cada critério considerado o de melhor ajuste dentro da amostra. Contudo, a escolha final do modelo ARIMA/SARIMA para previsão futura foi definido por meio n
+do desempenho no conjunto de teste, utilizando as métricas de acurácia apresentados na Seção a seguir como critério principal de seleção.
+
+\subsection{Avaliação do Desempenho}
+
+Os modelos foram avaliados no conjunto de teste pelas seguintes
+métricas:
+\begin{itemize}
+  \item \textbf{ME} -- Erro Médio (\textit{Mean Error});
+  \item \textbf{RMSE} -- Raiz do Erro Quadrático Médio (\textit{Root Mean Squared Error});
+  \item \textbf{MAE} -- Erro Absoluto Médio (\textit{Mean Absolute Error});
+  \item \textbf{MPE} -- Erro Percentual Médio (\textit{Mean Percentage Error});
+  \item \textbf{MAPE} -- Erro Percentual Absoluto Médio (\textit{Mean Absolute Percentage Error});
+  \item \textbf{MASE} -- Erro Absoluto Médio Escalado (\textit{Mean Absolute Scaled Error});
+  \item \textbf{RMSSE} -- Raiz do Erro Quadrático Médio Escalado (\textit{Root Mean Squared Scaled Error});
+  \item \textbf{ACF1} -- Autocorrelação dos resíduos na defasagem 1 (\textit{Autocorrelation Function at Lag 1}).
+\end{itemize}
+
+Considerando $e_t = y_t-\hat{y}_t$ o erro de previsão no instante $t$, $n$ o número de observações do conjunto de teste, $T$ o tamanho da série de treino e $m$ o período sazonal, as métricas são calculadas como:
+\begin{equation}
+  \text{ME}=\frac{1}{n}\sum_{t=1}^{n}e_t\,, \qquad
+  \text{RMSE}=\sqrt{\frac{1}{n}\sum_{t=1}^{n}e_t^2}\,, \qquad
+  \text{MAE}=\frac{1}{n}\sum_{t=1}^{n}|e_t|
+\end{equation}
+\begin{equation}
+  \text{MPE}=\frac{100}{n}\sum_{t=1}^{n}\frac{e_t}{y_t}\,, \qquad
+  \text{MAPE}=\frac{100}{n}\sum_{t=1}^{n}\left|\frac{e_t}{y_t}\right|
+\end{equation}
+\begin{equation}
+  \text{MASE}=\frac{1}{n}\sum_{t=1}^{n}\frac{|e_t|}{Q}\,, \qquad
+  \text{RMSSE}=\sqrt{\frac{\dfrac{1}{n}\displaystyle\sum_{t=1}^{n}e_t^2}{Q^2}}\,, \qquad
+  Q=\frac{1}{T-m}\sum_{t=m+1}^{T}|y_t-y_{t-m}|
+\end{equation}
+\begin{equation}
+  \text{ACF1}=\frac{\displaystyle\sum_{t=2}^{n}(e_t-\bar{e})(e_{t-1}-\bar{e})}{\displaystyle\sum_{t=1}^{n}(e_t-\bar{e})^2}
+\end{equation}
+em que $Q$ corresponde ao erro médio absoluto de um modelo \emph{naïve} sazonal ajustado ao conjunto de treino, utilizado para escalonar o MASE e o RMSSE, e $\bar{e}$ é a média dos resíduos do modelo no conjunto de teste.
+
+Em que, como critério de seleção principal do melhor modelo, foi utilizado o menor \textbf{MAPE}.
+
+\subsection{Ferramentas Computacionais}
+
+Toda a análise foi conduzida utilizando a linguagem de programação R \citep{r2024} utilizando o software RStudio versão 4.5.2\cite{rstudio}, com os seguintes pacotes principais para a análise:
+
+\begin{itemize}
+  \item \pkg{readr} \citep{wickham2023readr}: leitura de dados;
+  \item \pkg{dplyr} \citep{wickham2023dplyr}: manipulação de dados;
+  \item \pkg{lubridate} \citep{grolemund2011lubridate}: conversão de datas;
+  \item \pkg{ggplot2} \citep{wickham2016ggplot2}: visualização dos gráficos da série temporal;
+  \item \pkg{tsibble} \citep{wang2020tsibble}: estruturação do ecossistema moderno de séries
+        temporais;
+  \item \pkg{feasts} \citep{ogrady2021feasts}: exploração de
+        sazonalidade e tendência;
+  \item \pkg{fpp3} \citep{hyndman2021fpp3}: modelagem e previsão;
+  \item \pkg{tidyr}\citep{tidyr}: Organização/reestruturação de dados
+\end{itemize}
+
+% ============================================================
+\section{Resultados e Discussão}
+
+\subsection{Embarques em voos domésticos e internacionais regulares de passageiros de companhias aéreas dos EUA}
+\label{sec:resultados}
+
+\subsubsection{Visualização da Série}
+
+A Figura~\ref{fig:serie_orig_diff} apresenta a série original de embarques aéreos, que apresenta uma tendência de crescimento acompanhada de forte sazonalidade ao longo de todo o período analisado. É possível notar, pela análise visual, que entre 2001 e 2002 houve um pequeno declínio nos embarques aéreos nos EUA, devido aos ataques de 11 de setembro, e uma queda ainda maior em 2020, devido à pandemia de COVID-19, tendo, logo no ano seguinte, mostrado recuperação rápida e retornado ao padrão sazonal e à trajetória de crescimento até o final do período analisado.
+
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=\textwidth]{unnamed-chunk-4-1.png}
+  \caption{Índice de embarques em voos domésticos e internacionais
+           (escala original).}
+  \label{fig:serie_orig_diff}
+\end{figure}
+
+\subsubsection{Análise Descritiva dos Dados}
+
+A série é composta por $313$ observações, onde a média do índice de embarques foi de aproximadamente $63.257$ mil passageiros, enquanto a mediana apresentou valor bastante próximo $(63.679)$. A variância de $168.948.078$ evidencia uma dispersão considerável dos valores ao longo do período analisado, indicando que os embarques apresentaram variações expressivas em torno da média. O desvio padrão de $12.998$ reforça essa variabilidade, refletindo tanto a tendência de crescimento observada na série quanto os impactos de eventos que afetaram significativamente o setor aéreo. O valor mínimo registrado foi de $3.014$ embarques, enquanto o máximo atingiu $92.180$. Por fim, o coeficiente de variação de $20,55\%$ indica variabilidade moderada dos embarques em relação à média da série.
+
+A Tabela~\ref{tab:desc_embarques} apresenta as estatísticas descritivas do índice de embarques aéreos nos Estados Unidos para o período analisado.
+
+\begin{table}[H]
+\centering
+\caption{Estatísticas descritivas do índice de embarques aéreos nos Estados Unidos.}
+\label{tab:desc_embarques}
+\begin{tabular}{lr}
+\toprule
+\textbf{Parâmetro/Medida} & \textbf{Valor} \\
+\midrule
+Nº de observações & 313 \\
+Média & 63.257,44 \\
+Mediana & 63.679 \\
+Variância & 168.948.078 \\
+Desvio Padrão & 12.998 \\
+Mínimo & 3.014 \\
+Máximo & 92.180 \\
+CV (\%) & 20,55 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsubsection{Análise de Sazonalidade}
+
+O gráfico sazonal (Figura~\ref{fig:gg_season}) mostra as trajetórias anuais da série e revela um padrão de repetição bastante persistente ao longo dos anos, confirmando a sazonalidade na série analisada: os embarques tendem a ser menores entre janeiro e fevereiro, crescem ao longo do ano atingindo o pico nos meses de junho, julho e agosto, período que inicia o verão e as férias nos EUA, para então reduzir novamente no final do ano.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-6-1.png}
+  \caption{Gráfico sazonal (\pkg{gg\_season}): evolução mensal dos
+           embarques por ano.}
+  \label{fig:gg_season}
+\end{figure}
+
+O gráfico de subséries (Figura~\ref{fig:gg_subseries}) reforça a visualização do gráfico anterior ao exibir cada mês, e mostrar a desigualdade da média pela série a cada mês do ano. Junho, julho e agosto concentram as médias mais altas, enquanto janeiro, fevereiro e setembro registram as mais baixas. Vale destacar ainda que os valores aumentam entre os anos, mostrando a tendência de crescimento, o que pode estar associado ao aumento contínuo do setor aéreo no mundo.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-7-1.png}
+  \caption{Gráfico de subséries (\pkg{gg\_subseries}): evolução
+           histórica e média por mês.}
+  \label{fig:gg_subseries}
+\end{figure}
+
+\subsubsection{ACF e PACF}
+
+A Figura~\ref{fig:acf_pacf} apresenta as funções de autocorrelação e autocorrelação parcial da série. A ACF mostra autocorrelações elevadas que vai caindo de forma lenta, o que é característico de séries com tendência. Além disso, mostra um aumento significativo nos \emph{lags} múltiplos de 12, o que confirma a presença de uma forte sazonalidade ao longo dos anos. Já a PACF apresenta uma grande queda após o primeiro lag, indicando que o período anterior é o principal responsável por explicar o comportamento atual da série.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{unnamed-chunk-8-1.png}
+    \caption{ACF da série original (até \emph{lag} 20).}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{unnamed-chunk-8-1.png}
+    \caption{PACF da série original (até \emph{lag} 20).}
+  \end{subfigure}
+  \caption{Funções de autocorrelação (ACF) e autocorrelação parcial
+           (PACF) do índice de embarques.}
+  \label{fig:acf_pacf}
+\end{figure}
+
+\subsubsection{Decomposição Clássica}
+
+A Figura~\ref{fig:decomp} apresenta a decomposição clássica aditiva e multiplicativa da série. Em ambas as decomposições, é possível identificar claramente três componentes: uma tendência de crescimento ao longo do tempo, uma sazonalidade anual bem definida e resíduos predominantemente aleatórios. As principais exceções ocorrem nos anos de 2001 e 2020, que apresentam comportamentos atípicos em relação ao padrão da série.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.7\textwidth}
+    \includegraphics[width=\textwidth]{unnamed-chunk-9-1.png}
+    \caption{Decomposição aditiva.}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.7\textwidth}
+    \includegraphics[width=\textwidth]{unnamed-chunk-9-1.png}
+    \caption{Decomposição multiplicativa.}
+  \end{subfigure}
+  \caption{Decomposição clássica da série de embarques.}
+  \label{fig:decomp}
+\end{figure}
+
+\subsubsection{Previsões com Modelos ETS}
+
+Foram estimados cinco modelos de suavização exponencial (ETS) no conjunto de treinamento e geradas previsões para os 12 meses do período de teste (fevereiro de 2025 a janeiro de 2026, 12 observações). A Figura~\ref{fig:fc_ets} apresenta as visualizações das previsões todas ao mesmo tempo. Os modelos com componente sazonal (HW\_Add e HW\_Mult) demonstram ser mais semelhantes à trajetória da série, por outro lado, os modelos sem componente sazonal (SES, HoltA e HoltM) tendem a subestimar de forma consistente os picos observados durante o verão.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.895\textwidth]{unnamed-chunk-12-1.png}
+  \caption{Previsões dos cinco modelos ETS para o período de teste
+           (linha preta = valores observados).}
+  \label{fig:fc_ets}
+\end{figure}
+
+A Tabela~\ref{tab:acuracia_ets} a seguir mostra as métricas avaliadas pela acurácia dos modelos ETS no conjunto de teste, no mesmo recorte de dados usado na comparação com os modelos SARIMA (Seção~\ref{sec:sarima_voos}).
+
+\begin{table}[H]
+  \centering
+  \caption{Métricas de acurácia dos modelos ETS no conjunto de teste.}
+  \label{tab:acuracia_ets}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lrrrrrrrrr}
+    \toprule
+    \textbf{Modelo} & \textbf{ME} & \textbf{RMSE} & \textbf{MAE}
+      & \textbf{MPE (\%)} & \textbf{MAPE (\%)} & \textbf{MASE} & \textbf{RMSSE} & \textbf{ACF1} \\
+    \midrule
+    HW\_Mult &  878{,}0668  & 1913{,}105  & 1451{,}226  &  1{,}0306  & \textbf{1{,}8174} &  &  & $-$0{,}1773 \\
+    HW\_Add  & 3985{,}4902  & 5058{,}365  & 4522{,}911  &  4{,}6332  & 5{,}4097          &  &  & 0{,}3732 \\
+    HoltM    & 6227{,}4518  & 11320{,}983 & 10026{,}970 &  6{,}6971  & 12{,}1810         &  &  & 0{,}5751 \\
+    HoltA    & 11857{,}1860 & 14046{,}913 & 12245{,}704 & 13{,}9028  & 14{,}4707         &  &  & 0{,}4750 \\
+    SES      & 13012{,}6163 & 14823{,}908 & 13012{,}616 & 15{,}3906  & 15{,}3906         &  &  & 0{,}4408 \\
+    \bottomrule
+    \multicolumn{9}{l}{\small  Nota: MASE e RMSSE retornaram valores ausentes, por isso, o MAPE foi utilizado como critério principal de seleção. Melhor MAPE em negrito.}
+  \end{tabular}}
+\end{table}
+
+
+Entre os modelos ETS, o Holt-Winters Multiplicativo (\textbf{HW\_Mult}) obteve o menor MAPE $(\approx 1,82\%)$, que é a métrica principal sendo avaliada. Esse resultado é coerente com o comportamento da série, pois a intensidade dos padrões sazonais aumenta à medida que o número de embarques cresce, favorecendo o uso de modelos com sazonalidade multiplicativa em vez de aditiva. A Figura~\ref{fig:fc_ets_best} apresenta a previsão ajustada à série completa para visualização apenas do melhor modelo.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{unnamed-chunk-15-1.png}
+  \caption{Previsão do modelo Holt-Winters Multiplicativo (HW\_Mult) ajustado
+           à série completa.}
+  \label{fig:fc_ets_best}
+\end{figure}
+
+\subsubsection{Previsões com Modelos SARIMA}
+\label{sec:sarima_voos}
+
+Além da suavização exponencial, também foram ajustados modelos SARIMA para a série de embarques, já que ela apresenta tanto tendência quanto sazonalidade mensal bem marcada (período $m=12$).
+
+Antes da estimação dos modelos, foi verificada a necessidade de diferenciação pelo teste KPSS. Após a diferença de tendência, a estatística foi de $0,0642$ ($p\text{-valor} = 0,1$), mas os gráficos ACF e PACF ainda indicaram sazonalidade nos múltiplos de 12. Com isso, se aplicou uma nova diferença para a sazonalidade (lag 12), a estatística caiu para $0,0157$ ($p\text{-valor} = 0,1$), indicando que a série atingiu um comportamento estacionário.
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-16-1.png}
+  \caption{Série com diferenciação apenas da tendência, e respectivas ACF/PACF (KPSS $=0,0642$, $p=0,1$).}
+  \label{fig:diff_sarima_trend}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-17-1.png}
+  \caption{Série com diferenciação da tendência + sazonalidade, e respectivas ACF/PACF (KPSS $=0,0157$, $p=0,1$).}
+  \label{fig:diff_sarima_trend_season}
+\end{figure}
+
+
+Assim, o procedimento indicado foi aplicar uma diferença sazonal ($D=1$, lag 12) seguida de uma diferença não sazonal ($d=1$) para remover a tendência. A ACF e a PACF da série duas vezes diferenciada orientaram a escolha das ordens $p$, $q$, $P$ e $Q$ dos modelos candidatos.
+
+Foram estimados sete modelos SARIMA no conjunto de treinamento, apresentados na Tabela~\ref{tab:sarima_modelos}, sendo seis definidos manualmente a partir da análise da ACF/PACF e um obtido de forma automática (AutoSARIMA).
+
+\begin{table}[H]
+  \centering
+  \caption{Modelos SARIMA estimados e critérios de informação no conjunto de treino.}
+  \label{tab:sarima_modelos}
+  \begin{tabular}{llrrr}
+    \toprule
+    \textbf{Sigla} & \textbf{Notação SARIMA} & \textbf{AIC} & \textbf{AICc} & \textbf{BIC} \\
+    \midrule
+    SARIMA\_1  & ARIMA(1,1,1)(0,1,1)[12] & 5614 & 5614 & 5629 \\
+    SARIMA\_2  & ARIMA(2,1,1)(1,1,1)[12] & \textbf{5608} & \textbf{5608} & 5630 \\
+    SARIMA\_3  & ARIMA(0,1,1)(0,1,1)[12] & 5613 & 5613 & \textbf{5624} \\
+    SARIMA\_4  & ARIMA(1,1,0)(1,1,0)[12] & 5695 & 5695 & 5706 \\
+    SARIMA\_5  & ARIMA(2,1,0)(2,1,0)[12] & 5667 & 5667 & 5685 \\
+    SARIMA\_6  & ARIMA(0,1,2)(0,1,2)[12] & 5614 & 5615 & 5633 \\
+    AutoSARIMA & ARIMA(0,1,0)(2,0,0)[12] & 5954 & 5954 & 5965 \\
+    \bottomrule
+    \multicolumn{5}{l}{\small Nota: menores valores de AIC/AICc/BIC em negrito.}
+  \end{tabular}
+\end{table}
+
+
+Entre os modelos avaliados, o \textbf{SARIMA\_2} - ARIMA(2,1,1)(1,1,1)[12] apresentou os menores valores de AIC e AICc no conjunto de treino, indicando o melhor ajuste estatístico entre os modelos considerados. Esse resultado, no entanto, refere-se apenas ao ajuste dentro da amostra, sendo necessário também avaliar o desempenho de cada modelo no conjunto de teste para a escolha final.
+
+A Figura~\ref{fig:fc_sarima} apresenta as previsões dos sete modelos SARIMA para os 12 meses do período de teste, comparadas aos valores observados.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-19-1.png}
+  \caption{Previsões dos modelos SARIMA para o período de teste
+           (linha preta = valores observados).}
+  \label{fig:fc_sarima}
+\end{figure}
+
+A Tabela~\ref{tab:acuracia_sarima} mostra as métricas de acurácia dos modelos SARIMA no conjunto de teste.
+
+\begin{table}[H]
+  \centering
+  \caption{Métricas de acurácia dos modelos SARIMA no conjunto de teste.}
+  \label{tab:acuracia_sarima}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lrrrrrrrrr}
+    \toprule
+    \textbf{Modelo} & \textbf{ME} & \textbf{RMSE} & \textbf{MAE}
+      & \textbf{MPE (\%)} & \textbf{MAPE (\%)} & \textbf{MASE} & \textbf{RMSSE} & \textbf{ACF1} \\
+    \midrule
+    SARIMA\_5  & $-$143{,}8405 & 1972{,}510 & 1639{,}741 & $-$0{,}3826 & \textbf{2{,}0975} &  &  & 0{,}2753 \\
+    SARIMA\_4  & 2062{,}1998   & 2461{,}449 & 2232{,}130 & 2{,}4403   & 2{,}6673          &  &  & 0{,}2175 \\
+    AutoSARIMA & 3545{,}2778   & 4297{,}801 & 3579{,}409 & 4{,}1466   & 4{,}1927          &  &  & 0{,}3662 \\
+    SARIMA\_3  & 3821{,}1933   & 4778{,}503 & 4178{,}204 & 4{,}4625   & 4{,}9660          &  &  & 0{,}4818 \\
+    SARIMA\_1  & 4123{,}8526   & 5023{,}770 & 4327{,}771 & 4{,}8394   & 5{,}1263          &  &  & 0{,}4834 \\
+    SARIMA\_6  & 4178{,}5774   & 5253{,}311 & 4568{,}746 & 4{,}8799   & 5{,}4298          &  &  & 0{,}5290 \\
+    SARIMA\_2  & 6800{,}0691   & 7203{,}321 & 6800{,}069 & 8{,}2223   & 8{,}2223          &  &  & 0{,}2961 \\
+    \bottomrule
+    \multicolumn{9}{l}{\small Nota: MASE e RMSSE retornaram valores ausentes; o MAPE foi utilizado como critério principal de seleção. Melhor MAPE em negrito.}
+  \end{tabular}}
+\end{table}
+
+
+Apesar de o SARIMA\_2 ter apresentado o melhor ajuste na fase de treinamento (menor AICc), foi o \textbf{SARIMA\_5} — ARIMA(2,1,0)(2,1,0)[12] que obteve o melhor desempenho no conjunto de teste, com MAPE de aproximadamente $2,10\%$ e RMSE de $1972,51$. O modelo estimado apresenta os seguintes coeficientes: $\hat{\phi}_1 = 0{,}334 \ (\text{ep}=0{,}059), \quad
+\hat{\phi}_2 = -0{,}095 \ (\text{ep}=0{,}059), \quad
+\hat{\Phi}_1 = -0{,}679 \ (\text{ep}=0{,}057), \quad
+\hat{\Phi}_2 = -0{,}312 \ (\text{ep}=0{,}057)$, com $\hat{\sigma}^2 = 17.758.575$, $\text{AIC} = 5886{,}91$, $\text{AICc} = 5886{,}93$ e $\text{BIC} = 5890{,}62$. Esse resultado mostra que o melhor ajuste dentro da amostra (SARIMA_2) não garante, necessariamente, as melhores previsões fora dela. Por isso, foi importante avaliar os modelos no conjunto de teste. Com base nesse desempenho, o SARIMA_5 foi escolhido para realizar a previsão final dos 12 períodos.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-22-1.png}
+  \caption{Previsão do modelo SARIMA\_5 -- ARIMA(2,1,0)(2,1,0)[12] -- ajustada à série completa.}
+  \label{fig:fc_sarima_best}
+\end{figure}
+
+\subsubsection{Comparação entre o melhor modelo ETS e o melhor modelo SARIMA}
+
+A Tabela~\ref{tab:ets_vs_sarima} compara, no mesmo conjunto de teste, o melhor modelo ETS (Holt-Winters Multiplicativo) e o melhor modelo SARIMA (SARIMA\_5) para a série de embarques aéreos.
+
+\begin{table}[H]
+  \centering
+  \caption{Comparação final entre o melhor modelo ETS e o melhor modelo SARIMA.}
+  \label{tab:ets_vs_sarima}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lrrrrrrrrr}
+    \toprule
+    \textbf{Modelo} & \textbf{ME} & \textbf{RMSE} & \textbf{MAE}
+      & \textbf{MPE (\%)} & \textbf{MAPE (\%)} & \textbf{MASE} & \textbf{RMSSE} & \textbf{ACF1} \\
+    \midrule
+    HW\_Mult  & 878{,}0668    & 1913{,}105 & 1451{,}226 & 1{,}0306   & \textbf{1{,}8174} &  &  & $-$0{,}1773 \\
+    SARIMA\_5 & $-$143{,}8405 & 1972{,}510 & 1639{,}741 & $-$0{,}3826 & 2{,}0975         &  &  & 0{,}2753 \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+
+Essa comparação final mostra que o \textbf{HW\_Mult} apresentou o melhor desempenho entre os dois modelos, com MAPE de $1,8174\%$ contra $2,0975\%$ do SARIMA\_5, além de menores valores de RMSE ($1913,105$) e MAE ($1451,226$). Portanto, o Holt-Winters Multiplicativo (\textbf{HW\_Mult}) apresentou o melhor desempenho no conjunto de teste, sendo o modelo final mais adequado para uma possível previsão da série de embarques aéreos.
+
+% ============================================================
+\subsection{Percentual de indivíduos usuários de internet no Brasil}
+\label{sec:internet}
+
+\subsubsection{Visualização da Série Original}
+
+A Figura~\ref{fig:internet_serie_orig} apresenta a série do percentual de usuários com acesso à internet no Brasil, onde apresenta uma forte tendência de crescimento ao longo do período analisado. É possível observar que, entre 1990 e 2000, os percentuais eram próximos de zero, e começa a crescer a partir dos anos 2000, ocorrendo um crescimento acelerado até aproximadamente 2020. Logo após, esse crescimento começa a desacelerar, indicando uma possível estabilização da série. No final de 2024, último ano analisado pela série, o percentual de usuários com acesso à internet no Brasil atingeu cerca de 84,5\% da populção com acesso a internet no Brasil.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-4-1-1.png}
+  \caption{Percentual de usuários de internet no Brasil, série
+           original (1990--2024).}
+  \label{fig:internet_serie_orig}
+\end{figure}
+
+\subsubsection{Análise Descritiva dos Dados}
+
+A série é composta por $35$ observações anuais, onde a média do percentual de usuários de internet foi de aproximadamente $33,99\%$, enquanto a mediana apresentou valor próximo $(30,88\%)$. A variância de $961,44$ evidencia uma dispersão considerável dos valores ao longo do período analisado, indicando mudanças expressivas no acesso à internet no Brasil. O desvio padrão de $31,01$ pontos percentuais indica uma elevada dispersão dos dados em torno da média, refletindo o crescimento acelerado da utilização da internet nas últimas décadas. O valor mínimo registrado foi de $0\%$, enquanto o máximo atingiu $84,46\%$, evidenciando a forte expansão do acesso à internet ao longo do período analisado. Por fim, o coeficiente de variação de $91,23\%$ indica elevada variabilidade em relação à média da série, comportamento esperado em uma série caracterizada por uma forte tendência de crescimento ao longo do tempo.
+
+A Tabela~\ref{tab:desc_internet} apresenta as estatísticas descritivas da série do percentual de usuários de internet no Brasil para o período de 1990 a 2024.
+
+\begin{table}[H]
+\centering
+\caption{Estatísticas descritivas do percentual de usuários de internet no Brasil.}
+\label{tab:desc_internet}
+\begin{tabular}{lr}
+\toprule
+\textbf{Parâmetro/Medida} & \textbf{Valor} \\
+\midrule
+Nº de Observações & 35 \\
+Média & 33,99 \\
+Mediana & 30,88 \\
+Variância & 961,44 \\
+Desvio Padrão & 31,01 \\
+Mínimo & 0,00 \\
+Máximo & 84,46 \\
+CV (\%) & 91,23 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Análise de Sazonalidade}
+
+A partir da análise visual da série, é possível identificar que não há evidências de sazonalidade na série, já que não é possível observar padrões que se repetem ao longo do período analisado. O comportamento da série é fortemente marcado por uma forte tendência de crescimento, com sinais de desaceleração nos anos finais que foram analisados.
+
+\subsubsection{ACF e PACF}
+
+A Figura~\ref{fig:internet_acf_pacf} apresenta as funções de autocorrelação e
+autocorrelação parcial da série de usuários de internet. A ACF apresenta autocorrelações elevadas nos primeiros \emph{lags}, que decaem de forma lenta e gradual, comportamento característico de séries com forte tendência. Já a PACF apresenta um valor elevado apenas no primeiro \emph{lag} e vai caindo nos \emph{lags} seguintes, indicando que a dependência temporal sofre forte influência da observação anterior em relação aos valores atuais da série. Esses resultados reforçam a presença de uma tendência forte e a ausência de sazonalidade na série.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{unnamed-chunk-6-1-1.png}
+    \caption{ACF da série original (até \emph{lag} 20).}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{unnamed-chunk-6-1-1.png}
+    \caption{PACF da série original (até \emph{lag} 20).}
+  \end{subfigure}
+  \caption{Funções de autocorrelação (ACF) e autocorrelação parcial
+           (PACF) dos usuários de internet no Brasil.}
+  \label{fig:internet_acf_pacf}
+\end{figure}
+
+\subsubsection{Decomposição da Série}
+
+A decomposição da série em tendência, componente sazonal e resíduo confirma a ausência de sazonalidade. Como os dados da série possuem frequência anual, o componente sazonal torna-se quase constante, fazendo com que a maior parte da variação observada seja explicada apenas pela tendência. Esse componente evidencia de forma clara o crescimento constante do acesso à internet pela população brasileira ao longo das últimas décadas.
+
+\subsubsection{Previsões com Modelos ETS}
+
+Foram estimados cinco modelos de suavização exponencial (ETS) sem componente sazonal no conjunto de treinamento, com a base de treino cobrindo o período de 1990 a 2022 (33 observações) e a base de teste cobrindo 2023--2024 (2 observações) -- o mesmo recorte utilizado na comparação com os modelos ARIMA (Seção~\ref{sec:arima_internet}). A Figura~\ref{fig:internet_fc_ets} apresenta as previsões de todos os modelos avaliados ao mesmo tempo. Observa-se que os modelos com componente de tendência não amortecida (HoltA, HoltM) projetam a continuidade linear do crescimento da série, enquanto os modelos amortecidos e o SES produzem previsões ligeiramente mais conservadoras, acompanhando melhor a desaceleração observada do acesso à internet nos anos mais recentes.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-9-1-1.png}
+  \caption{Previsões dos cinco modelos ETS para o período de teste
+           (linha preta = valores observados).}
+  \label{fig:internet_fc_ets}
+\end{figure}
+
+A Tabela~\ref{tab:acuracia_internet_ets} a seguir mostra as métricas avaliadas pela acurácia dos modelos ETS no conjunto de teste.
+
+\begin{table}[H]
+ \centering
+  \caption{Métricas de acurácia dos modelos ETS no conjunto de teste.}
+  \label{tab:acuracia_internet_ets}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lrrrrrrrrr}
+    \toprule
+    \textbf{Modelo} & \textbf{ME} & \textbf{RMSE} & \textbf{MAE}
+      & \textbf{MPE (\%)} & \textbf{MAPE (\%)} & \textbf{MASE} & \textbf{RMSSE} & \textbf{ACF1} \\
+    \midrule
+    HoltA     &  2{,}0800   &  2{,}0956  &  2{,}0800  &  2{,}4667   & \textbf{2{,}4667} &  &  & $-$0{,}5 \\
+    HoltDampA &  2{,}1484   &  2{,}1599  &  2{,}1484  &  2{,}5478   & 2{,}5478          &  &  & $-$0{,}5 \\
+    HoltM     & $-$2{,}4109 &  2{,}7915  &  2{,}4109  & $-$2{,}8566 & 2{,}8566          &  &  & $-$0{,}5 \\
+    HoltDampM &  3{,}3126   &  3{,}3127  &  3{,}3126  &  3{,}9292   & 3{,}9292          &  &  & $-$0{,}5 \\
+    SES       &  3{,}7793   &  3{,}7825  &  3{,}7793  &  4{,}4824   & 4{,}4824          &  &  & $-$0{,}5 \\
+    \bottomrule
+    \multicolumn{9}{l}{\small Nota: MASE e RMSSE retornaram valores ausentes, por isso, o MAPE foi utilizado como critério principal de seleção. Melhor MAPE em negrito.} \\
+  \end{tabular}}
+\end{table}
+
+
+Entre os modelos avaliados, o \textbf{HoltA} (Holt Aditivo) apresentou o menor MAPE ($\approx 2,4667\%$), sendo considerado a métrica principal de avaliação. Esse resultado mostra que a tendência aditiva utilizada pelo modelo foi adequada para acompanhar a evolução recente dos usuários de internet no Brasil, superando as versões amortecidas (HoltDampA e HoltDampM), que subestimaram a continuidade do crescimento observado no período de teste.
+
+Vale destacar que o conjunto de teste possui apenas duas observações (2023--2024) por ter poucas observações, o que limita a avaliação dos modelos. Assim, as métricas podem não refletir totalmente o desempenho dos modelos em períodos mais longos, devendo ser interpretadas com cautela.
+
+A Figura~\ref{fig:internet_fc_ets_best} apresenta a previsão do modelo HoltA ajustado à série completa para visualização do melhor modelo.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-12-1-1.png}
+  \caption{Previsão do melhor modelo ETS (HoltA -- ETS(A,A,N)) ajustado à
+           série completa.}
+  \label{fig:internet_fc_ets_best}
+\end{figure}
+
+\subsubsection{Previsões com Modelos ARIMA}
+\label{sec:arima_internet}
+
+Complementando os modelos ETS, também foram ajustados modelos ARIMA não sazonais para a série do percentual de usuários de internet no Brasil, pois, por ser uma série anual, não apresenta sazonalidade, mas possui uma tendência de crescimento ao longo do tempo.
+
+O teste KPSS indicou a necessidade de diferenciação, pois a série em nível apresentou estatística de $0,893$ ($p\text{-valor} = 0,01$), rejeitando a estacionariedade. Após a primeira diferenciação, ainda foram observadas autocorrelações relevantes até o \emph{lag} 3-4. Com a segunda diferenciação, a estatística caiu para $0,198$ ($p\text{-valor} = 0,1$), indicando estacionariedade e confirmando a necessidade de duas diferenciações para a série $(d=2)$.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-13-1-1.png}
+  \caption{Série com uma diferenciação ($d=1$), e respectivas ACF/PACF (KPSS $=0,893$, $p=0,01$).}
+  \label{fig:diff_arima_d1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-13-2-1.png}
+  \caption{Série com duas diferenciações ($d=2$), e respectivas ACF/PACF (KPSS $=0,198$, $p=0,1$).}
+  \label{fig:diff_arima_d2}
+\end{figure}
+
+A ACF e a PACF da série com duas diferenciações ajudaram a definir as ordens $p$ e $q$ dos modelos. Foram ajustados sete modelos ARIMA no conjunto de treinamento, apresentados na Tabela~\ref{tab:arima_modelos}. Como a série é anual e não apresenta sazonalidade, todos os modelos foram não sazonais, com diferentes combinações de termos AR e MA. Além disso, foi utilizada a função AutoARIMA para uma seleção automática das ordens.
+
+\begin{table}[H]
+  \centering
+  \caption{Modelos ARIMA estimados e critérios de informação no conjunto de treino.}
+  \label{tab:arima_modelos}
+  \begin{tabular}{llrrr}
+    \toprule
+    \textbf{Sigla} & \textbf{Notação ARIMA} & \textbf{AIC} & \textbf{AICc} & \textbf{BIC} \\
+    \midrule
+    ARIMA120  & ARIMA(1,2,0) & 140 & 141 & 143 \\
+    ARIMA021  & ARIMA(0,2,1) & 139 & 139 & 142 \\
+    ARIMA121  & ARIMA(1,2,1) & 139 & 140 & 144 \\
+    ARIMA220  & ARIMA(2,2,0) & \textbf{135} & \textbf{136} & \textbf{139} \\
+    ARIMA022  & ARIMA(0,2,2) & 136 & 137 & 141 \\
+    ARIMA222  & ARIMA(2,2,2) & 138 & 141 & 145 \\
+    AutoARIMA & --           & 141 & 142 & 146 \\
+    \bottomrule
+    \multicolumn{5}{l}{\small Nota: menores valores de AIC/AICc/BIC em negrito.}
+  \end{tabular}
+\end{table}
+
+
+Entre os modelos avaliados, o \textbf{ARIMA(2,2,0)} apresentou os menores valores de AIC, AICc e BIC no conjunto de treino, indicando o melhor ajuste estatístico entre as alternativas consideradas. Esse resultado, no entanto, refere-se apenas ao ajuste dentro da amostra,
+sendo necessário também avaliar o desempenho de cada modelo no conjunto de teste para a
+escolha final.
+
+A Figura~\ref{fig:fc_arima} apresenta as previsões dos modelos ARIMA para o período de teste, comparadas aos valores observados.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-15-1-1.png}
+  \caption{Previsões dos modelos ARIMA para o período de teste
+           (linha preta = valores observados).}
+  \label{fig:fc_arima}
+\end{figure}
+
+A Tabela~\ref{tab:acuracia_arima} mostra as métricas de acurácia dos modelos ARIMA no conjunto de teste.
+
+\begin{table}[H]
+  \centering
+  \caption{Métricas de acurácia dos modelos ARIMA no conjunto de teste.}
+  \label{tab:acuracia_arima}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lrrrrrrrrr}
+    \toprule
+    \textbf{Modelo} & \textbf{ME} & \textbf{RMSE} & \textbf{MAE}
+      & \textbf{MPE (\%)} & \textbf{MAPE (\%)} & \textbf{MASE} & \textbf{RMSSE} & \textbf{ACF1} \\
+    \midrule
+    ARIMA220  & $-$0{,}0668 & 0{,}2275 & 0{,}2175 & $-$0{,}0797 & \textbf{0{,}2582} &  &  & $-$0{,}5 \\
+    ARIMA021  & 0{,}6817    & 1{,}1101 & 0{,}8761 & 0{,}8105    & 1{,}0407          &  &  & $-$0{,}5 \\
+    ARIMA121  & 1{,}5133    & 1{,}5593 & 1{,}5133 & 1{,}7958    & 1{,}7958          &  &  & $-$0{,}5 \\
+    ARIMA222  & 1{,}9568    & 2{,}2002 & 1{,}9568 & 2{,}3188    & 2{,}3188          &  &  & $-$0{,}5 \\
+    AutoARIMA & 3{,}9517    & 4{,}1777 & 3{,}9517 & 4{,}6844    & 4{,}6844          &  &  & $-$0{,}5 \\
+    ARIMA022  & 4{,}3610    & 4{,}6039 & 4{,}3610 & 5{,}1695    & 5{,}1695          &  &  & $-$0{,}5 \\
+    ARIMA120  & 4{,}3693    & 4{,}3794 & 4{,}3693 & 5{,}1820    & 5{,}1820          &  &  & $-$0{,}5 \\
+    \bottomrule
+    \multicolumn{9}{l}{\small Nota: MASE e RMSSE retornaram valores ausentes; o MAPE foi utilizado como critério principal de seleção. Melhor MAPE em negrito.}
+  \end{tabular}}
+\end{table}
+
+O \textbf{ARIMA(2,2,0)} apresentou o melhor resultado tanto no conjunto de treinamento, quanto no conjunto de teste, com o menor MAPE ($0,2582\%$), além dos menores valores de RMSE ($0,2275$) e MAE ($0,2175$). O modelo estimado apresenta os seguintes coeficientes: $$\hat{\phi}_1 = -0{,}9227 \ (\text{ep}=0{,}1668), \qquad \hat{\phi}_2 = -0{,}5594 \ (\text{ep}=0{,}1866)$$
+com $\hat{\sigma}^2 = 3{,}417$, log-verossimilhança $=-67{,}69$, $\text{AIC} = 137{,}38$, $\text{AICc} = 137{,}51$ e $\text{BIC} = 138{,}88$. Por apresentar o melhor desempenho preditivo entre todos os candidatos, esse modelo foi escolhido e reajustado à série completa para gerar a previsão final.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{unnamed-chunk-18-1-1.png}
+  \caption{Previsão do modelo ARIMA(2,2,0) ajustada à série completa.}
+  \label{fig:fc_arima_best}
+\end{figure}
+
+\subsubsection{Comparação entre o melhor modelo ETS e o melhor modelo ARIMA}
+
+A Tabela~\ref{tab:ets_vs_arima} compara, no mesmo conjunto de teste, o melhor modelo ETS (Holt Aditivo) e o melhor modelo ARIMA (ARIMA(2,2,0)) para a série do percentual de usuários de internet no Brasil.
+
+\begin{table}[H]
+  \centering
+  \caption{Comparação final entre o melhor modelo ETS e o melhor modelo ARIMA.}
+  \label{tab:ets_vs_arima}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lrrrrrrrrr}
+    \toprule
+    \textbf{Modelo} & \textbf{ME} & \textbf{RMSE} & \textbf{MAE}
+      & \textbf{MPE (\%)} & \textbf{MAPE (\%)} & \textbf{MASE} & \textbf{RMSSE} & \textbf{ACF1} \\
+    \midrule
+    ARIMA220 & $-$0{,}0668 & 0{,}2275 & 0{,}2175 & $-$0{,}0797 & \textbf{0{,}2582} &  &  & $-$0{,}5 \\
+    HoltA    & 2{,}0800    & 2{,}0956 & 2{,}0800 & 2{,}4667    & 2{,}4667          &  &  & $-$0{,}5 \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+A partir da tabela, o modelo \textbf{ARIMA(2,2,0)} apresentou melhor desempenho em comparação ao HoltA, com MAPE de $0,2582\%$ contra $2,4667\%$, além de menores valores de RMSE e MAE. Dessa forma, o ARIMA(2,2,0) foi escolhido como o modelo mais adequado para a previsão da série de usuários de internet no Brasil.
+
+Portanto, o modelo \textbf{ARIMA(2,2,0)} apresentou o melhor desempenho no conjunto de teste, sendo o modelo final mais adequado para uma possível previsão da série de usuários de internet no Brasil.
+% ============================================================
+\section{Conclusões}
+\label{sec:conclusao}
+
+A análise das duas séries temporais em conjunto permitiu observar como diferentes características dos dados influenciam diretamente a escolha e o desempenho dos modelos de previsão. Apesar de ambas apresentarem tendências ao longo do tempo, suas estruturas são diferentes: a série de embarques aéreos possui uma sazonalidade bem evidente e uma tendência de crescimento, enquanto a série de usuários de internet no Brasil apresenta apenas tendência de crescimento.
+
+Na série de embarques aéreos nos Estados Unidos, foi identificada uma tendência de crescimento acompanhada por um padrão sazonal mensal. Também foram observadas quedas associadas a eventos externos, como os atentados de 11 de setembro e a pandemia de COVID-19, evidenciando a influência de acontecimentos inesperados sobre o comportamento da série. Entre os modelos avaliados, o Holt-Winters Multiplicativo apresentou o melhor desempenho no conjunto de teste, com MAPE de $1,8174\%$, além de menores valores de RMSE e MAE em comparação ao SARIMA_5. Dessa forma, mostrou-se o modelo mais adequado para representar os padrões de tendência e sazonalidade presentes na série.
+
+Para a série de percentual de usuários de internet no Brasil, observou-se um crescimento rápido ao longo das últimas décadas, especialmente a partir dos anos 2000. Entretanto, nos anos mais recentes esse crescimento começou a desacelerar, parecendo aproximar de uma possível estabilidade. Como se trata de uma série anual, não foram identificados padrões sazonais, sendo utilizados modelos não sazonais. Logo após a diferenciações necessárias para tornar a série estacionária, o ARIMA(2,2,0) apresentou o melhor resultado no conjunto de teste, com MAPE de apenas $0,2582\%$, superando o modelo Holt Aditivo.
+
+De maneira geral, os resultados mostram que não existe um único modelo capaz de apresentar o melhor desempenho para diferentes tipos de séries temporais. A escolha deve considerar as características que os dados mostram, como tendência, sazonalidade e dependência temporal. Além disso, a comparação no conjunto de teste se mostrou fundamental, já que um modelo que apresenta melhor ajuste aos dados utilizados na estimação não necessariamente apresentará as melhores previsões para novas observações. Assim, a análise exploratória, a verificação da estacionariedade, a identificação dos padrões de dependência e a validação dos modelos no conjunto de teste foram fundamentais para a escolha dos modelos finais.
+
+Dessa forma, o estudo reforça a importância de considerar diferentes abordagens para comparar e identificar o modelo mais adequado para cada série. Para os dados analisados, o Holt-Winters Multiplicativo apresentou o melhor desempenho para os embarques aéreos, enquanto o ARIMA(2,2,0) foi o modelo mais adequado para a série de usuários de internet no Brasil.
+
+% ============================================================
+\label{sec:referencias}
+\addcontentsline{toc}{section}{Referências}
+
+
+\begin{thebibliography}{99}
+
+\bibitem{antunes2015}
+ANTUNES, J. L. F.; CARDOSO, M. R. A. Uso da análise de séries temporais em estudos epidemiológicos. \textbf{Epidemiologia e Serviços de Saúde}, Brasília, v. 24, n. 3, p. 565--576, 2015. DOI: 10.5123/S1679-49742015000300024. Disponível em: \url{https://doi.org/10.5123/S1679-49742015000300024}.
+
+\bibitem{fred_enplane}
+BUREAU OF TRANSPORTATION STATISTICS (BTS); FEDERAL RESERVE BANK OF ST. LOUIS (FRED). \textbf{Enplanements: Total System -- Domestic and International Scheduled Service, Passengers Enplaned by U.S. Air Carriers} [ENPLANE]. Disponível em: \url{https://fred.stlouisfed.org/series/ENPLANE}.
+
+\bibitem{box2015}
+BOX, G. E. P.; JENKINS, G. M.; REINSEL, G. C.; LJUNG, G. M. \textbf{Time Series Analysis: Forecasting and Control}. 5. ed. Hoboken: Wiley, 2015.
+
+\bibitem{chatfield2004}
+CHATFIELD, C. \textbf{The Analysis of Time Series: An Introduction}. 6. ed. Boca Raton: Chapman \& Hall/CRC, 2004.
+
+\bibitem{fred}
+FEDERAL RESERVE BANK OF ST. LOUIS. \textbf{FRED: Federal Reserve Economic Data}. St. Louis, 2026. Disponível em: \url{https://fred.stlouisfed.org}.
+
+\bibitem{frazao2020}
+FRAZÃO, J. A. F.; OLIVEIRA, A. V. M. de. Distribuição de renda e demanda por transporte aéreo: uma especificação de modelo econométrico para o mercado doméstico brasileiro. \textbf{Transportes}, v. 28, n. 3, p. 1--13, 2020. DOI: 10.14295/transportes.v28i5.1662. Disponível em: \url{https://transportes.anpet.org.br/anpet/article/view/1662}.
+
+\bibitem{grolemund2011lubridate}
+GROLEMUND, G.; WICKHAM, H. Dates and times made easy with lubridate. \textbf{Journal of Statistical Software}, v. 40, n. 3, p. 1--25, 2011. DOI: 10.18637/jss.v040.i03. Disponível em: \url{https://www.jstatsoft.org/article/view/v040i03}.
+
+\bibitem{hyndman2008forecasting}
+HYNDMAN, R. J.; KOEHLER, A. B.; ORD, J. K.; SNYDER, R. D. \textbf{Forecasting with Exponential Smoothing: The State Space Approach}. Berlin: Springer, 2008.
+
+\bibitem{hyndman2021fpp3}
+HYNDMAN, R. J.; ATHANASOPOULOS, G. \textbf{Forecasting: Principles and Practice}. 3. ed. Melbourne: OTexts, 2021. Disponível em: \url{https://otexts.com/fpp3}.
+
+\bibitem{morettin2018}
+MORETTIN, Pedro A.; TOLOI, Clélia M. C. \textbf{Análise de séries temporais: modelos lineares univariados}. São Paulo: Editora Blucher, 2018. 474 p. ISBN 978-85-212-1352-9.
+
+\bibitem{ogrady2021feasts}
+O'GRADY, M.; HYNDMAN, R. J.; WANG, E. \textbf{feasts: Feature Extraction and Statistics for Time Series}. R package version 0.3.0, 2021. Disponível em: \url{https://CRAN.R-project.org/package=feasts}.
+
+\bibitem{oliveira2009}
+OLIVEIRA, Alessandro Vinícius Marques de. \textbf{Transporte aéreo: economia e políticas públicas}. São Paulo: Pezco Editora, 2009. ISBN 978-85-62305-00-9. Disponível em: \url{https://arxiv.org/abs/2402.07190}.
+
+\bibitem{rstudio}
+POSIT TEAM. \textbf{RStudio: Integrated Development Environment for R}. Boston: Posit Software, PBC, 2025. Disponível em: \url{http://www.posit.co/}.
+
+\bibitem{r2024}
+R CORE TEAM. \textbf{R: A Language and Environment for Statistical Computing}. Vienna: R Foundation for Statistical Computing, 2024. Disponível em: \url{https://www.R-project.org/}.
+
+\bibitem{uit2023}
+UNIÃO INTERNACIONAL DE TELECOMUNICAÇÕES (UIT). \textbf{Measuring digital development: Facts and Figures}. Genebra: ITU Publications, 2023. Disponível em: \url{https://www.itu.int/itu-d/reports/statistics/}.
+
+\bibitem{wang2020tsibble}
+WANG, E.; COOK, D.; HYNDMAN, R. J. A new tidy data structure to support exploration and modeling of temporal data. \textbf{Journal of Computational and Graphical Statistics}, v. 29, n. 3, p. 466--478, 2020. Disponível em: \url{https://arxiv.org/abs/1901.10257}.
+
+\bibitem{wickham2023dplyr}
+WICKHAM, H.; FRANÇOIS, R.; HENRY, L.; MÜLLER, K.; VAUGHAN, D. \textbf{dplyr: A Grammar of Data Manipulation}. R package version 1.1.4, 2023. Disponível em: \url{https://CRAN.R-project.org/package=dplyr}.
+
+\bibitem{wickham2016ggplot2}
+WICKHAM, H. \textbf{ggplot2: Elegant Graphics for Data Analysis}. New York: Springer-Verlag, 2016. Disponível em: \url{https://ggplot2-book.org/}.
+
+\bibitem{wickham2023readr}
+WICKHAM, H.; HESTER, J.; BRYAN, J. \textbf{readr: Read Rectangular Text Data}. R package version 2.1.4, 2023. Disponível em: \url{https://CRAN.R-project.org/package=readr}.
+
+\bibitem{tidyr}
+WICKHAM, H.; VAUGHAN, D.; GIRLICH, M. \textbf{tidyr: Tidy Messy Data}. R package version 1.3.2, 2025. Disponível em: \url{https://CRAN.R-project.org/package=tidyr}.
+
+\bibitem{fred_internet}
+WORLD BANK; FEDERAL RESERVE BANK OF ST. LOUIS (FRED). \textbf{Individuals Using the Internet (\% of Population) for Brazil} [ITNETUSERP2BRA]. Disponível em: \url{https://fred.stlouisfed.org/series/ITNETUSERP2BRA}.
+
+\end{thebibliography}
+
+\end{document}

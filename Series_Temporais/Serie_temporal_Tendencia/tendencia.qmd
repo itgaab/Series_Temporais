@@ -239,39 +239,31 @@ longo de três décadas.
 
 # Treino: 1990 até 2020
 train <- serie_anual %>%
-  filter_index("1990" ~ "2020"); train
+  filter_index("1990" ~ "2022"); train
 
 # Teste: 2021 em diante 
 test <- serie_anual %>%
-  filter_index("2021" ~ .); test
+  filter_index("2023" ~ .); test
 ```
 
-Nossa base de treino para os modelos começa em 1990 até 2000 contendo 31 observações, já a base de teste começa em 2021 contendo 4 observações para uma previsão de 4 anos.
+Nossa base de treino para os modelos começa em 1990 até 2022 contendo 31 observações, já a base de teste começa em 2023 contendo 2 observações para uma previsão de 2 anos.
 
-# Previsão utilizando o modelo ETS
+# Previsão utilizando o modelo ETS {background-color="#21295C"}
 
 ## Estimando os modelos ETS
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
-library(fpp3)  
+library(fpp3) 
+library(kableExtra)
 
 Indice_fit <- train %>%
   model(
-    # SES (Suavização Exponencial Simples)
-    SES = ETS(Indice ~ error("A") + trend("N") + season("N")),
-    
-    # Holt aditivo
-    HoltA = ETS(Indice ~ error("A") + trend("A") + season("N")),
-    
-    # Holt multiplicativo
-    HoltM = ETS(Indice ~ error("M") + trend("A") + season("N")),
-    
-    # Holt amortecido aditivo
+    SES       = ETS(Indice ~ error("A") + trend("N") + season("N")),
+    HoltA     = ETS(Indice ~ error("A") + trend("A") + season("N")),
+    HoltM     = ETS(Indice ~ error("M") + trend("A") + season("N")),
     HoltDampA = ETS(Indice ~ error("A") + trend("Ad") + season("N")),
-    
-    # Holt amortecido multiplicativo
-    HoltDampM = ETS(Indice ~ error("M") + trend("Ad") + season("N"))
+    HoltDampM = ETS(Indice ~ error("M") + trend("Ad") + season("N")),
   )
 Indice_fit
 ```
@@ -298,7 +290,7 @@ sazonalidade):
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
-Indice_fc <- Indice_fit %>% forecast(h = 4)
+Indice_fc <- Indice_fit %>% forecast(h = 2)
 
 # Grafico da serie com as previsoes 
 Indice_fc %>%
@@ -309,12 +301,13 @@ Indice_fc %>%
   ) +
   labs(
     y = "Usuários de Internet (%)",
-    title = "Previsão — Modelos ETS"
+    x = "Ano",
+    title = "Previsão — Comparativo dos Modelos ETS"
   ) +
   guides(colour = guide_legend(title = "Forecast"))
 ```
 
-O gráfico apresenta as previsões dos 5 modelos ETS para os 4 anos do
+O gráfico apresenta as previsões dos 5 modelos ETS para os 2 anos do
 período de teste, comparadas com os valores reais em preto. Modelos
 com tendência não amortecida tendem a superestimar o crescimento,
 enquanto os modelos amortecidos projetam uma desaceleração mais
@@ -329,7 +322,133 @@ accuracy(Indice_fc, test) %>%
   arrange(MAPE) %>%
   rename(Modelo = .model) %>%
   mutate(across(where(is.numeric), ~ round(.x, 4))) %>%
-  kbl(caption = "Métricas de avaliação — Modelos ETS") %>%
+  kbl(caption = "Métricas de Avaliação — Modelos ETS", align = "l") %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    font_size = 14
+  ) %>%
+  row_spec(1, bold = TRUE, background = "#e8f4f8")
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+mod_best <- serie_anual %>%
+  model(
+    HoltA = ETS(Indice ~ error("A") + trend("A") + season("N"))
+  )
+mod_best
+```
+
+A tabela de métricas permite comparar o desempenho dos modelos no período de teste. O **HoltA** apresentou o menor MAPE, indicando que foi o modelo que melhor representou o comportamento recente da série. Esse resultado mostra que a tendência aditiva utilizada pelo modelo foi adequada para acompanhar a evolução dos usuários de internet no Brasil.
+
+## Criando a previsão com o melhor modelo
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Previsão futura (com intervalo de 80% e 95%)
+mod_best %>% 
+  forecast(h = 2) %>%
+  autoplot(serie_anual) + 
+  labs(
+    y = "Usuários de Internet (%)",
+    x = "Ano",
+    title = "Previsão Final — Modelo HoltA (ETS(A,A,N))"
+  ) +
+  theme_minimal()
+
+```
+
+A tabela de métricas permite comparar o desempenho dos modelos no período de teste. O **HoltA** apresentou o menor MAPE, indicando que foi o modelo ETS que melhor representou o comportamento recente da série.
+
+# Previsão utilizando modelos ARIMA {background-color="#21295C"}
+
+## Verificando a necessidade de diferenciação {.scrollable}
+
+Como a ACF apresentou decaimento lento e a série tem tendência clara e não sazonal, o esperado é que seja necessária ao menos uma diferenciação para tornar a série estacionária.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#| fig-width: 11
+#| fig-height: 7
+#| out-width: "100%"
+
+# Teste KPSS na série original 
+train %>% features(Indice, unitroot_kpss)
+
+# ACF/PACF da série diferenciada
+train %>%
+  mutate(dIndice = difference(Indice)) %>%
+  gg_tsdisplay(dIndice, plot_type = "partial")
+
+# Teste KPSS na série duplamente diferenciada 
+train %>%
+  mutate(ddIndice = difference(difference(Indice))) %>%
+  features(ddIndice, unitroot_kpss)
+
+
+# ACF/PACF da série duplamente diferenciada
+train %>%
+  mutate(ddIndice = difference(difference(Indice))) %>%
+  gg_tsdisplay(ddIndice, plot_type = "partial")
+```
+
+O teste confirma a necessidade de duas diferenciações (`d = 2`). Após
+diferenciar duas vezes, a série passa a se tornar estácionaria, sem
+tendência aparente, e a ACF/PACF da série duplamente diferenciada
+orientam a escolha das ordens `p` e `q` dos modelos candidatos.
+
+## Estimando os modelos ARIMA
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+Indice_fit_arima <- train %>%
+  model(
+    ARIMA120 = ARIMA(Indice ~ pdq(1,2,0)),
+    ARIMA021 = ARIMA(Indice ~ pdq(0,2,1)),
+    ARIMA121 = ARIMA(Indice ~ pdq(1,2,1)),
+    ARIMA220 = ARIMA(Indice ~ pdq(2,2,0)),
+    ARIMA022 = ARIMA(Indice ~ pdq(0,2,2)),
+    ARIMA222 = ARIMA(Indice ~ pdq(2,2,2)),
+    AutoARIMA = ARIMA(Indice, stepwise = FALSE, approximation = FALSE)
+  )
+
+Indice_fit_arima
+
+# Ordens escolhidas pela busca automática
+Indice_fit_arima %>%
+  glance() %>%
+  select(.model, AIC, AICc,BIC)
+```
+
+Foram estimados 7 modelos ARIMA no conjunto de treino. Entre os modelos avaliados, o ARIMA(2,2,0) apresentou os menores valores de AIC, AICc e BIC, indicando o melhor ajuste entre as alternativas consideradas. Como a série é anual, foram utilizados apenas modelos não sazonais, combinando diferentes ordens ARMA após a diferenciação. A busca automática também foi realizada por meio do AutoARIMA, servindo como uma alternativa para selecionar automaticamente as ordens do modelo.
+
+## Criando o gráfico com as previsões
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+Indice_fc_arima <- Indice_fit_arima %>% forecast(h = 2)
+
+Indice_fc_arima %>%
+  autoplot(train, level = NULL) +
+  autolayer(
+    test,
+    colour = "black"
+  ) +
+  labs(
+    y = "Usuários de Internet (%)",
+    title = "Previsão — Modelos ARIMA"
+  ) +
+  guides(colour = guide_legend(title = "Forecast"))
+```
+
+## Medidas de avaliação
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+accuracy(Indice_fc_arima, test) %>%
+  select(.model, ME, RMSE, MAE, MPE, MAPE, MASE, RMSSE, ACF1) %>%
+  arrange(MAPE) %>%
+  rename(Modelo = .model) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 4))) %>%
+  kbl(caption = "Métricas de avaliação — Modelos ARIMA") %>%
   kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
     full_width = TRUE,
@@ -339,30 +458,35 @@ accuracy(Indice_fc, test) %>%
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-mod_best <- serie_anual %>%
-  model(
-    SES = ETS(Indice ~ error("A") + trend("N") + season("N"))
-  )
 
-mod_best
+# Escolhendo automaticamente o modelo ARIMA 
+melhor_arima <- accuracy(Indice_fc_arima, test) %>%
+  arrange(MAPE) %>%
+  slice(1) %>%
+  pull(.model)
+
+melhor_arima
+
+# Reajustando a especificação vencedora na série completa
+mod_best_arima <- Indice_fit_arima %>%
+  select(all_of(melhor_arima)) %>%
+  refit(serie_anual)
+
+mod_best_arima %>% report()
+
+# Diagnóstico de resíduos do melhor modelo ARIMA
+mod_best_arima %>% gg_tsresiduals()
 ```
 
-A tabela de métricas permite comparar o desempenho dos modelos no
-período de teste. O **SES** apresentou o menor MAPE entre os modelos
-avaliados, indicando que a série de usuários de internet no Brasil
-atingiu um patamar de estabilização tão pronunciado nos anos mais
-recentes que a inclusão de componente de tendência, mesmo quando
-amortecida, acaba prejudicando a previsão. Ao ponderar apenas o nível
-recente da série, o SES conseguiu capturar melhor o comportamento
-observado no período de teste.
+A tabela compara o desempenho dos modelos ARIMA no período de teste. O ARIMA(2,2,0) apresentou o melhor resultado, com o menor MAPE (0,2582%), além dos menores valores de RMSE (0,2275) e MAE (0,2175). Por isso, esse modelo foi escolhido e reajustado na série completa para realizar a previsão final.
 
-## Criando a previsão com o melhor modelo
+## Criando a previsão com o melhor modelo ARIMA
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-Indice_fc <- mod_best %>% forecast(h = 4)
 
-# Grafico da serie com as previsoes 
-Indice_fc %>%
+Indice_fc_arima_best <- mod_best_arima %>% forecast(h = 2)
+
+Indice_fc_arima_best %>%
   autoplot(serie_anual, level = NULL) +
   autolayer(
     test,
@@ -370,28 +494,46 @@ Indice_fc %>%
   ) +
   labs(
     y = "Usuários de Internet (%)",
-    title = "Previsão — Melhor Modelo ETS (SES)"
+    title = "Previsão — Melhor Modelo ARIMA"
   ) +
   guides(colour = guide_legend(title = "Forecast"))
-
 ```
 
-Com o SES estimado em toda a série, as previsões para os próximos anos
-refletem a estabilização do crescimento, compatível com o comportamento
-recente da série. O modelo projeta um percentual de usuários se
-mantendo próximo ao nível atual, sem projetar crescimento adicional.
+## Comparando o melhor ETS com o melhor ARIMA
 
-# Conclusão
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
-Ao longo das últimas décadas, o acesso à internet no Brasil cresceu
-significativamente, alcançando cerca de 84% da população em 2024.
-Apesar desse avanço, observa-se uma desaceleração recente no
-crescimento, sugerindo aproximação de um nível de saturação. Na
-comparação dos modelos de previsão, o SES apresentou o melhor
-desempenho no período de teste, capturando adequadamente essa
-estabilização. Como critério de desempate entre modelos com desempenho
-equivalente, o princípio da parcimônia favorece o modelo mais simples,
-o que reforça a escolha do SES como modelo final.
+Indice_fit_comp <- train %>%
+  model(
+    HoltA = ETS(Indice ~ error("A") + trend("A") + season("N"))
+  ) %>%
+  mutate(!!melhor_arima := Indice_fit_arima[[melhor_arima]])
+
+Indice_fc_comp <- Indice_fit_comp %>% forecast(h = 2)
+
+accuracy(Indice_fc_comp, test) %>%
+  select(.model, ME, RMSE, MAE, MPE, MAPE, MASE, RMSSE, ACF1) %>%
+  arrange(MAPE) %>%
+  rename(Modelo = .model) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 4))) %>%
+  kbl(caption = "ETS vs. ARIMA — Comparação final") %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = TRUE,
+    font_size  = 14
+  ) %>%
+  row_spec(1, bold = TRUE, background = "")
+```
+
+A partir da tabela, o ARIMA(2,2,0) apresentou desempenho superior ao HoltA, com MAPE de 0,2582%, contra 2,4667% do HoltA. Além disso, apresentou menores valores de RMSE e MAE. Dessa forma, o ARIMA(2,2,0) foi escolhido como o modelo mais adequado para a previsão da série.
+
+## Conclusão
+
+Ao longo das últimas décadas, o acesso à internet no Brasil apresentou forte crescimento, passando de valores próximos de zero em 1990 para cerca de 84% da população em 2024. Nos anos mais recentes, esse crescimento mostrou uma desaceleração, indicando uma tendência de estabilização da série.
+
+Na comparação dos modelos ETS, o **HoltA** apresentou o melhor desempenho no período de teste, com **MAPE de 2,4667%**, sendo escolhido para gerar as previsões dessa abordagem. Já entre os modelos ARIMA, após duas diferenciações, o **ARIMA(2,2,0)** apresentou os menores erros no período de teste, com **MAPE de 0,2582%**, além dos menores valores de RMSE e MAE.
+Na comparação final, o **ARIMA(2,2,0)** apresentou desempenho superior ao HoltA, com MAPE de **0,2582% contra 2,4667%**. Dessa forma, o ARIMA(2,2,0) foi o modelo que apresentou melhor desempenho para a previsão da série de usuários de internet no Brasil.
+
 
 # Referência
 

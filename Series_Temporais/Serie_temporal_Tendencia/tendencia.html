@@ -280,7 +280,7 @@
 <h4 id="definindo-as-bases-de-treino-e-teste">Definindo as bases de treino e teste</h4>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code># A tsibble: 31 x 2 [1Y]
+<pre><code># A tsibble: 33 x 2 [1Y]
      Ano  Indice
    &lt;int&gt;   &lt;dbl&gt;
  1  1990 0      
@@ -293,22 +293,20 @@
  8  1997 0.786  
  9  1998 1.48   
 10  1999 2.04   
-# ℹ 21 more rows</code></pre>
+# ℹ 23 more rows</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tsibble: 4 x 2 [1Y]
+<pre><code># A tsibble: 2 x 2 [1Y]
     Ano Indice
   &lt;int&gt;  &lt;dbl&gt;
-1  2021   80.7
-2  2022   80.5
-3  2023   84.2
-4  2024   84.5</code></pre>
+1  2023   84.2
+2  2024   84.5</code></pre>
 </div>
 </div>
-<p>Nossa base de treino para os modelos começa em 1990 até 2000 contendo 31 observações, já a base de teste começa em 2021 contendo 4 observações para uma previsão de 4 anos.</p>
+<p>Nossa base de treino para os modelos começa em 1990 até 2022 contendo 31 observações, já a base de teste começa em 2023 contendo 2 observações para uma previsão de 2 anos.</p>
 </section>
 <section>
-<section id="previsão-utilizando-o-modelo-ets" class="title-slide slide level1 center">
+<section id="previsão-utilizando-o-modelo-ets" class="title-slide slide level1 center" data-background-color="#21295C">
 <h1>Previsão utilizando o modelo ETS</h1>
 
 </section>
@@ -334,14 +332,175 @@
 <section id="criando-o-gráfico-com-as-previsões" class="slide level2">
 <h2>Criando o gráfico com as previsões</h2>
 
-<img data-src="tendencia_files/figure-revealjs/unnamed-chunk-9-1.png" width="960" class="r-stretch"><p>O gráfico apresenta as previsões dos 5 modelos ETS para os 4 anos do período de teste, comparadas com os valores reais em preto. Modelos com tendência não amortecida tendem a superestimar o crescimento, enquanto os modelos amortecidos projetam uma desaceleração mais compatível com o comportamento recente da série.</p>
+<img data-src="tendencia_files/figure-revealjs/unnamed-chunk-9-1.png" width="960" class="r-stretch"><p>O gráfico apresenta as previsões dos 5 modelos ETS para os 2 anos do período de teste, comparadas com os valores reais em preto. Modelos com tendência não amortecida tendem a superestimar o crescimento, enquanto os modelos amortecidos projetam uma desaceleração mais compatível com o comportamento recente da série.</p>
 </section>
 <section id="medidas-de-avaliacao" class="slide level2">
 <h2>Medidas de avaliacao</h2>
 <div class="cell">
 <div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed caption-top" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>Métricas de Avaliação — Modelos ETS</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Modelo</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">ME</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">RMSE</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">MAE</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">MPE</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">MAPE</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">MASE</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">RMSSE</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">ACF1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold; background-color: rgba(232, 244, 248, 255) !important;">HoltA</td>
+<td style="text-align: left; font-weight: bold; background-color: rgba(232, 244, 248, 255) !important;">2.0800</td>
+<td style="text-align: left; font-weight: bold; background-color: rgba(232, 244, 248, 255) !important;">2.0956</td>
+<td style="text-align: left; font-weight: bold; background-color: rgba(232, 244, 248, 255) !important;">2.0800</td>
+<td style="text-align: left; font-weight: bold; background-color: rgba(232, 244, 248, 255) !important;">2.4667</td>
+<td style="text-align: left; font-weight: bold; background-color: rgba(232, 244, 248, 255) !important;">2.4667</td>
+<td style="text-align: left; font-weight: bold; background-color: rgba(232, 244, 248, 255) !important;">NaN</td>
+<td style="text-align: left; font-weight: bold; background-color: rgba(232, 244, 248, 255) !important;">NaN</td>
+<td style="text-align: left; font-weight: bold; background-color: rgba(232, 244, 248, 255) !important;">-0.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">HoltDampA</td>
+<td style="text-align: left;">2.1484</td>
+<td style="text-align: left;">2.1599</td>
+<td style="text-align: left;">2.1484</td>
+<td style="text-align: left;">2.5478</td>
+<td style="text-align: left;">2.5478</td>
+<td style="text-align: left;">NaN</td>
+<td style="text-align: left;">NaN</td>
+<td style="text-align: left;">-0.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HoltM</td>
+<td style="text-align: left;">-2.4109</td>
+<td style="text-align: left;">2.7915</td>
+<td style="text-align: left;">2.4109</td>
+<td style="text-align: left;">-2.8566</td>
+<td style="text-align: left;">2.8566</td>
+<td style="text-align: left;">NaN</td>
+<td style="text-align: left;">NaN</td>
+<td style="text-align: left;">-0.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">HoltDampM</td>
+<td style="text-align: left;">3.3126</td>
+<td style="text-align: left;">3.3127</td>
+<td style="text-align: left;">3.3126</td>
+<td style="text-align: left;">3.9292</td>
+<td style="text-align: left;">3.9292</td>
+<td style="text-align: left;">NaN</td>
+<td style="text-align: left;">NaN</td>
+<td style="text-align: left;">-0.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SES</td>
+<td style="text-align: left;">3.7793</td>
+<td style="text-align: left;">3.7825</td>
+<td style="text-align: left;">3.7793</td>
+<td style="text-align: left;">4.4824</td>
+<td style="text-align: left;">4.4824</td>
+<td style="text-align: left;">NaN</td>
+<td style="text-align: left;">NaN</td>
+<td style="text-align: left;">-0.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A mable: 1 x 1
+         HoltA
+       &lt;model&gt;
+1 &lt;ETS(A,A,N)&gt;</code></pre>
+</div>
+</div>
+<p>A tabela de métricas permite comparar o desempenho dos modelos no período de teste. O <strong>HoltA</strong> apresentou o menor MAPE, indicando que foi o modelo que melhor representou o comportamento recente da série. Esse resultado mostra que a tendência aditiva utilizada pelo modelo foi adequada para acompanhar a evolução dos usuários de internet no Brasil.</p>
+</section>
+<section id="criando-a-previsão-com-o-melhor-modelo" class="slide level2">
+<h2>Criando a previsão com o melhor modelo</h2>
+
+<img data-src="tendencia_files/figure-revealjs/unnamed-chunk-12-1.png" width="960" class="r-stretch"><p>A tabela de métricas permite comparar o desempenho dos modelos no período de teste. O <strong>HoltA</strong> apresentou o menor MAPE, indicando que foi o modelo ETS que melhor representou o comportamento recente da série.</p>
+</section></section>
+<section>
+<section id="previsão-utilizando-modelos-arima" class="title-slide slide level1 center" data-background-color="#21295C">
+<h1>Previsão utilizando modelos ARIMA</h1>
+
+</section>
+<section id="verificando-a-necessidade-de-diferenciação" class="slide level2 scrollable">
+<h2>Verificando a necessidade de diferenciação</h2>
+<p>Como a ACF apresentou decaimento lento e a série tem tendência clara e não sazonal, o esperado é que seja necessária ao menos uma diferenciação para tornar a série estacionária.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  kpss_stat kpss_pvalue
+      &lt;dbl&gt;       &lt;dbl&gt;
+1     0.893        0.01</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="tendencia_files/figure-revealjs/unnamed-chunk-13-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  kpss_stat kpss_pvalue
+      &lt;dbl&gt;       &lt;dbl&gt;
+1     0.198         0.1</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="tendencia_files/figure-revealjs/unnamed-chunk-13-2.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>O teste confirma a necessidade de duas diferenciações (<code>d = 2</code>). Após diferenciar duas vezes, a série passa a se tornar estácionaria, sem tendência aparente, e a ACF/PACF da série duplamente diferenciada orientam a escolha das ordens <code>p</code> e <code>q</code> dos modelos candidatos.</p>
+</section>
+<section id="estimando-os-modelos-arima" class="slide level2">
+<h2>Estimando os modelos ARIMA</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A mable: 1 x 7
+        ARIMA120       ARIMA021       ARIMA121       ARIMA220       ARIMA022
+         &lt;model&gt;        &lt;model&gt;        &lt;model&gt;        &lt;model&gt;        &lt;model&gt;
+1 &lt;ARIMA(1,2,0)&gt; &lt;ARIMA(0,2,1)&gt; &lt;ARIMA(1,2,1)&gt; &lt;ARIMA(2,2,0)&gt; &lt;ARIMA(0,2,2)&gt;
+# ℹ 2 more variables: ARIMA222 &lt;model&gt;, AutoARIMA &lt;model&gt;</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 4
+  .model      AIC  AICc   BIC
+  &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 ARIMA120   140.  141.  143.
+2 ARIMA021   139.  139.  142.
+3 ARIMA121   139.  140.  144.
+4 ARIMA220   135.  136.  139.
+5 ARIMA022   136.  137.  141.
+6 ARIMA222   138.  141.  145.
+7 AutoARIMA  141.  142.  146.</code></pre>
+</div>
+</div>
+<p>Foram estimados 7 modelos ARIMA no conjunto de treino. Entre os modelos avaliados, o ARIMA(2,2,0) apresentou os menores valores de AIC, AICc e BIC, indicando o melhor ajuste entre as alternativas consideradas. Como a série é anual, foram utilizados apenas modelos não sazonais, combinando diferentes ordens ARMA após a diferenciação. A busca automática também foi realizada por meio do AutoARIMA, servindo como uma alternativa para selecionar automaticamente as ordens do modelo.</p>
+</section>
+<section id="criando-o-gráfico-com-as-previsões-1" class="slide level2">
+<h2>Criando o gráfico com as previsões</h2>
+
+<img data-src="tendencia_files/figure-revealjs/unnamed-chunk-15-1.png" width="960" class="r-stretch"></section>
+<section id="medidas-de-avaliação" class="slide level2">
+<h2>Medidas de avaliação</h2>
+<div class="cell">
+<div class="cell-output-display">
 <table class="table table-striped table-hover table-condensed caption-top" style="font-size: 14px; margin-left: auto; margin-right: auto;">
-<caption>Métricas de avaliação — Modelos ETS</caption>
+<caption>Métricas de avaliação — Modelos ARIMA</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th">Modelo</th>
@@ -357,59 +516,81 @@
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left; font-weight: bold; background-color: !important;">SES</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">1.1160</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">2.1634</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">1.8491</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">1.3035</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">2.2131</td>
+<td style="text-align: left; font-weight: bold; background-color: !important;">ARIMA220</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">-0.0668</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">0.2275</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">0.2175</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">-0.0797</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">0.2582</td>
 <td style="text-align: right; font-weight: bold; background-color: !important;">NaN</td>
 <td style="text-align: right; font-weight: bold; background-color: !important;">NaN</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">0.2577</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">-0.5</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">HoltDampM</td>
-<td style="text-align: right;">2.7860</td>
-<td style="text-align: right;">3.3103</td>
-<td style="text-align: right;">2.7860</td>
-<td style="text-align: right;">3.3317</td>
-<td style="text-align: right;">3.3317</td>
+<td style="text-align: left;">ARIMA021</td>
+<td style="text-align: right;">0.6817</td>
+<td style="text-align: right;">1.1101</td>
+<td style="text-align: right;">0.8761</td>
+<td style="text-align: right;">0.8105</td>
+<td style="text-align: right;">1.0407</td>
 <td style="text-align: right;">NaN</td>
 <td style="text-align: right;">NaN</td>
-<td style="text-align: right;">0.2492</td>
+<td style="text-align: right;">-0.5</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">HoltM</td>
-<td style="text-align: right;">-8.1737</td>
-<td style="text-align: right;">8.7515</td>
-<td style="text-align: right;">8.1737</td>
-<td style="text-align: right;">-9.8529</td>
-<td style="text-align: right;">9.8529</td>
+<td style="text-align: left;">ARIMA121</td>
+<td style="text-align: right;">1.5133</td>
+<td style="text-align: right;">1.5593</td>
+<td style="text-align: right;">1.5133</td>
+<td style="text-align: right;">1.7958</td>
+<td style="text-align: right;">1.7958</td>
 <td style="text-align: right;">NaN</td>
 <td style="text-align: right;">NaN</td>
-<td style="text-align: right;">0.0624</td>
+<td style="text-align: right;">-0.5</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">HoltDampA</td>
-<td style="text-align: right;">-10.5880</td>
-<td style="text-align: right;">11.3707</td>
-<td style="text-align: right;">10.5880</td>
-<td style="text-align: right;">-12.7568</td>
-<td style="text-align: right;">12.7568</td>
+<td style="text-align: left;">ARIMA222</td>
+<td style="text-align: right;">1.9568</td>
+<td style="text-align: right;">2.2002</td>
+<td style="text-align: right;">1.9568</td>
+<td style="text-align: right;">2.3188</td>
+<td style="text-align: right;">2.3188</td>
 <td style="text-align: right;">NaN</td>
 <td style="text-align: right;">NaN</td>
-<td style="text-align: right;">0.1186</td>
+<td style="text-align: right;">-0.5</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">HoltA</td>
-<td style="text-align: right;">-11.2468</td>
-<td style="text-align: right;">12.1218</td>
-<td style="text-align: right;">11.2468</td>
-<td style="text-align: right;">-13.5467</td>
-<td style="text-align: right;">13.5467</td>
+<td style="text-align: left;">AutoARIMA</td>
+<td style="text-align: right;">3.9517</td>
+<td style="text-align: right;">4.1777</td>
+<td style="text-align: right;">3.9517</td>
+<td style="text-align: right;">4.6844</td>
+<td style="text-align: right;">4.6844</td>
 <td style="text-align: right;">NaN</td>
 <td style="text-align: right;">NaN</td>
-<td style="text-align: right;">0.1326</td>
+<td style="text-align: right;">-0.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ARIMA022</td>
+<td style="text-align: right;">4.3610</td>
+<td style="text-align: right;">4.6039</td>
+<td style="text-align: right;">4.3610</td>
+<td style="text-align: right;">5.1695</td>
+<td style="text-align: right;">5.1695</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">-0.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ARIMA120</td>
+<td style="text-align: right;">4.3693</td>
+<td style="text-align: right;">4.3794</td>
+<td style="text-align: right;">4.3693</td>
+<td style="text-align: right;">5.1820</td>
+<td style="text-align: right;">5.1820</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">-0.5</td>
 </tr>
 </tbody>
 </table>
@@ -417,24 +598,81 @@
 </div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code># A mable: 1 x 1
-           SES
-       &lt;model&gt;
-1 &lt;ETS(A,N,N)&gt;</code></pre>
+<pre><code>[1] "ARIMA220"</code></pre>
 </div>
-</div>
-<p>A tabela de métricas permite comparar o desempenho dos modelos no período de teste. O <strong>SES</strong> apresentou o menor MAPE entre os modelos avaliados, indicando que a série de usuários de internet no Brasil atingiu um patamar de estabilização tão pronunciado nos anos mais recentes que a inclusão de componente de tendência, mesmo quando amortecida, acaba prejudicando a previsão. Ao ponderar apenas o nível recente da série, o SES conseguiu capturar melhor o comportamento observado no período de teste.</p>
-</section>
-<section id="criando-a-previsão-com-o-melhor-modelo" class="slide level2">
-<h2>Criando a previsão com o melhor modelo</h2>
+<div class="cell-output cell-output-stdout">
+<pre><code>Series: Indice 
+Model: ARIMA(2,2,0) 
 
-<img data-src="tendencia_files/figure-revealjs/unnamed-chunk-12-1.png" width="960" class="r-stretch"><p>Com o SES estimado em toda a série, as previsões para os próximos anos refletem a estabilização do crescimento, compatível com o comportamento recente da série. O modelo projeta um percentual de usuários se mantendo próximo ao nível atual, sem projetar crescimento adicional.</p>
+Coefficients:
+          ar1      ar2
+      -0.9227  -0.5594
+s.e.   0.1668   0.1866
+
+sigma^2 estimated as 3.417:  log likelihood=-67.69
+AIC=137.38   AICc=137.51   BIC=138.88</code></pre>
+</div>
+
+</div>
+<img data-src="tendencia_files/figure-revealjs/unnamed-chunk-17-1.png" width="960" class="r-stretch"><p>A tabela compara o desempenho dos modelos ARIMA no período de teste. O ARIMA(2,2,0) apresentou o melhor resultado, com o menor MAPE (0,2582%), além dos menores valores de RMSE (0,2275) e MAE (0,2175). Por isso, esse modelo foi escolhido e reajustado na série completa para realizar a previsão final.</p>
+</section>
+<section id="criando-a-previsão-com-o-melhor-modelo-arima" class="slide level2">
+<h2>Criando a previsão com o melhor modelo ARIMA</h2>
+
+<img data-src="tendencia_files/figure-revealjs/unnamed-chunk-18-1.png" width="960" class="r-stretch"></section>
+<section id="comparando-o-melhor-ets-com-o-melhor-arima" class="slide level2">
+<h2>Comparando o melhor ETS com o melhor ARIMA</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed caption-top" style="font-size: 14px; margin-left: auto; margin-right: auto;">
+<caption>ETS vs. ARIMA — Comparação final</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Modelo</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">ME</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">RMSE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MAE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MPE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MAPE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MASE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">RMSSE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">ACF1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold; background-color: !important;">ARIMA220</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">-0.0668</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">0.2275</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">0.2175</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">-0.0797</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">0.2582</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">NaN</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">NaN</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">-0.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">HoltA</td>
+<td style="text-align: right;">2.0800</td>
+<td style="text-align: right;">2.0956</td>
+<td style="text-align: right;">2.0800</td>
+<td style="text-align: right;">2.4667</td>
+<td style="text-align: right;">2.4667</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">-0.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>A partir da tabela, o ARIMA(2,2,0) apresentou desempenho superior ao HoltA, com MAPE de 0,2582%, contra 2,4667% do HoltA. Além disso, apresentou menores valores de RMSE e MAE. Dessa forma, o ARIMA(2,2,0) foi escolhido como o modelo mais adequado para a previsão da série.</p>
+</section>
+<section id="conclusão" class="slide level2">
+<h2>Conclusão</h2>
+<p>Ao longo das últimas décadas, o acesso à internet no Brasil apresentou forte crescimento, passando de valores próximos de zero em 1990 para cerca de 84% da população em 2024. Nos anos mais recentes, esse crescimento mostrou uma desaceleração, indicando uma tendência de estabilização da série.</p>
+<p>Na comparação dos modelos ETS, o <strong>HoltA</strong> apresentou o melhor desempenho no período de teste, com <strong>MAPE de 2,4667%</strong>, sendo escolhido para gerar as previsões dessa abordagem. Já entre os modelos ARIMA, após duas diferenciações, o <strong>ARIMA(2,2,0)</strong> apresentou os menores erros no período de teste, com <strong>MAPE de 0,2582%</strong>, além dos menores valores de RMSE e MAE. Na comparação final, o <strong>ARIMA(2,2,0)</strong> apresentou desempenho superior ao HoltA, com MAPE de <strong>0,2582% contra 2,4667%</strong>. Dessa forma, o ARIMA(2,2,0) foi o modelo que apresentou melhor desempenho para a previsão da série de usuários de internet no Brasil.</p>
 </section></section>
-<section id="conclusão" class="title-slide slide level1 center">
-<h1>Conclusão</h1>
-<p>Ao longo das últimas décadas, o acesso à internet no Brasil cresceu significativamente, alcançando cerca de 84% da população em 2024. Apesar desse avanço, observa-se uma desaceleração recente no crescimento, sugerindo aproximação de um nível de saturação. Na comparação dos modelos de previsão, o SES apresentou o melhor desempenho no período de teste, capturando adequadamente essa estabilização. Como critério de desempate entre modelos com desempenho equivalente, o princípio da parcimônia favorece o modelo mais simples, o que reforça a escolha do SES como modelo final.</p>
-</section>
-
 <section id="referência" class="title-slide slide level1 center">
 <h1>Referência</h1>
 <p>Os dados utilizados são do Banco Mundial (World Bank), onde foram obtidos do FRED, Banco da Reserva Federal de St.&nbsp;Louis.</p>

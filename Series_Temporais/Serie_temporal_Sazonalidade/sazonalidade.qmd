@@ -1,5 +1,5 @@
 ---
-title: "Análise de Série Temporal com Sazonalidade - Passages Aéreas"
+title: "Análise de Série Temporal com Sazonalidade - Passagens Aéreas"
 title-slide-attributes:
   data-background-image: Marca_UEPB.png
   data-background-size: contain
@@ -60,7 +60,7 @@ editor:
     wrap: 72
 ---
 
-## Introdução sobre a Série Temporal utilizada
+## Introdução sobre a Série Temporal utilizada 
 
 O transporte aéreo é um importante indicador da atividade econômica
 global, pois reflete a demanda por viagens e o desempenho do setor de
@@ -128,8 +128,8 @@ head(df_voo)
 tail(df_voo)
 ```
 
-O nosso bando de dados começa de janeiro de 2000 e vai até janeiro de 2026
-
+O nosso bando de dados começa de janeiro de 2000 e vai até janeiro de
+2026
 
 ```{r, echo=FALSE}
 
@@ -187,13 +187,14 @@ desc %>%
   )
 ```
 
-A série é composta por `r nrow(serie_mensal)` observações mensais. 
-A média de embarques foi de aproximadamente
-`r format(round(mean(serie_mensal$Indice, na.rm=TRUE), 0), big.mark=".")` mil passageiros,
-com desvio padrão elevado, o que reflete tanto a tendência de crescimento
-ao longo do período quanto os impactos de eventos atípicos, como os
-ataques de 11 de setembro (2001) e a pandemia de COVID-19 (2020). O
-coeficiente de variação indica variabilidade moderada em torno da média.
+A série é composta por `r nrow(serie_mensal)` observações mensais. A
+média de embarques foi de aproximadamente
+`r format(round(mean(serie_mensal$Indice, na.rm=TRUE), 0), big.mark=".")`
+mil passageiros, com desvio padrão elevado, o que reflete tanto a
+tendência de crescimento ao longo do período quanto os impactos de
+eventos atípicos, como os ataques de 11 de setembro (2001) e a pandemia
+de COVID-19 (2020). O coeficiente de variação indica variabilidade
+moderada em torno da média.
 
 ## Gráficos para análise de sazonalidade
 
@@ -246,7 +247,11 @@ pacf_Indice = serie_mensal %>%
 gridExtra::grid.arrange(acf_Indice, pacf_Indice, ncol=2)
 ```
 
-A ACF apresenta um decaimento lento das autocorrelações, indicando que a série possui forte dependência temporal e possível tendência. Já a PACF mostra um pico elevado no primeiro lag e valores menores nos demais, sugerindo que os períodos mais recentes são os que mais influenciam os valores futuros da série.
+A ACF apresenta um decaimento lento das autocorrelações, indicando que a
+série possui forte dependência temporal e possível tendência. Já a PACF
+mostra um pico elevado no primeiro lag e valores menores nos demais,
+sugerindo que os períodos mais recentes são os que mais influenciam os
+valores futuros da série.
 
 ## Decomposição da série
 
@@ -275,7 +280,12 @@ d1|d2
 
 ```
 
-A decomposição separa a série em tendência, sazonalidade e resíduos. A tendência mostra a evolução dos dados ao longo do tempo, a sazonalidade mostra padrões que se repetem a cada ano, e os resíduos representam oscilações aleatórias. Como os resíduos não apresentam um padrão definido, concluímos que a tendência e a sazonalidade explicam bem o comportamento da série.
+A decomposição separa a série em tendência, sazonalidade e resíduos. A
+tendência mostra a evolução dos dados ao longo do tempo, a sazonalidade
+mostra padrões que se repetem a cada ano, e os resíduos representam
+oscilações aleatórias. Como os resíduos não apresentam um padrão
+definido, concluímos que a tendência e a sazonalidade explicam bem o
+comportamento da série.
 
 ## Fazendo a previsão para 12 passos
 
@@ -287,16 +297,18 @@ A decomposição separa a série em tendência, sazonalidade e resíduos. A tend
 
 # Treino: início até dez/2025
 train <- serie_mensal %>%
-  filter_index("2000-01" ~ "2025-01"); train
+  filter_index("2000-01" ~ "2025-02"); train
 
 # Teste: jan/2026 em diante 
 test <- serie_mensal %>%
-  filter_index("2025-02" ~ .); test
+  filter_index("2025-03" ~ .); test
 ```
 
-Nossa base de treino para os modelos começa em janeiro de 2000 até janeiro de 2025 contendo 301 observações, já a base de teste começa em fevereiro de 2025 contendo 12 observações para uma previsão de 12 meses.
+Nossa base de treino para os modelos começa em janeiro de 2000 até
+janeiro de 2025 contendo 301 observações, já a base de teste começa em
+fevereiro de 2025 contendo 12 observações para uma previsão de 12 meses.
 
-# Previsão utilizando o modelo ETS
+# Previsão utilizando o modelo ETS {background-color="#21295C"}
 
 ## Estimando os modelos ETS
 
@@ -361,7 +373,7 @@ Indice_fc %>%
 O gráfico da série temporal mostra a vizualização das previsões dos 5
 modelos ETS para os 12 meses seguintes.
 
-## Medidas de avaliacao
+## Medidas de avaliação
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -390,8 +402,8 @@ mod_best
 ```
 
 A tabela mostra o erro de cada modelo no período de teste. O modelo com
-menor MAPE é o Holt-Winters Multiplicativo (HW_Mult), o que faz
-sentido dado que a série tem sazonalidade e tendência, e a amplitude das
+menor MAPE é o Holt-Winters Multiplicativo (HW_Mult), o que faz sentido
+dado que a série tem sazonalidade e tendência, e a amplitude das
 variações cresce junto com o nível da série, característica do modelo
 multiplicativo.
 
@@ -421,13 +433,242 @@ capturando tanto a tendência de crescimento quanto o comportamento
 sazonal. As previsões ficam próximas dos valores reais observados no
 período de teste.
 
-# Conclusão
+# Previsão utilizando modelos SARIMA {background-color="#21295C"}
 
-Ao longo dos anos, a série de embarques aéreos dos EUA mostra que o número de passageiros foi crescendo de forma constante, e todo ano o mesmo padrão se repete: o movimento aéreo começa mais fraco em janeiro e fevereiro, vai ganhando
-força ao longo dos meses e atinge seu ponto mais alto entre junho e agosto, quando as férias impulsionam a demanda por viagens. Depois desse
-pico, o número cai novamente até o início do próximo ano.
+## Verificando a necessidade de diferenciação sazonal e não sazonal {.scrollable}
 
-Para representar esse comportamento, foram utilizados modelos ETS, com destaque para o Holt-Winters multiplicativo, que melhor capturou a tendência e a sazonalidade da série. Na comparação entre os modelos, ele apresentou os menores erros no conjunto de teste, sendo o mais adequado para a previsão dessa série temporal.
+A série apresenta sazonalidade mensal (período 12), além de uma tendência de crescimento. Como a amplitude da sazonalidade aumenta conforme o nível da série cresce, é comum aplicar uma transformação logarítmica antes do ajuste do SARIMA, ajudando a estabilizar a variância e facilitando a modelagem.
+
+### Diferenciação apenas da tendência
+
+```{r, echo=FALSE}
+#| fig-width: 11
+#| fig-height: 7
+#| out-width: "100%"
+
+# Teste KPSS na série diferenciada
+train %>%
+  mutate(dIndice = difference(Indice, 12)) %>%
+  features(dIndice, unitroot_kpss)
+
+# Comportamento da série
+plot_serie <- train %>%
+  autoplot(difference(Indice, 12)) +
+  labs(
+    title = "Sazonalidade diferenciada",
+    y = ""
+  )
+
+# ACF
+acf <- train %>%
+  ACF(difference(Indice, 12), lag_max = 36) %>%
+  autoplot() +
+  labs(title = "ACF")
+
+# PACF
+pacf <- train %>%
+  PACF(difference(Indice, 12), lag_max = 36) %>%
+  autoplot() +
+  labs(title = "PACF")
+
+gridExtra::grid.arrange(
+  plot_serie, acf, pacf,
+  layout_matrix = rbind(c(1,1), c(2,3))
+)
+```
+
+### Diferenciação da tendência + sanzonalidade
+
+```{r, echo=FALSE}
+#| fig-width: 11
+#| fig-height: 7
+#| out-width: "100%"
+
+# Teste KPSS na série diferenciada
+train %>%
+  mutate(
+    dIndice = difference(difference(Indice, 12))
+  ) %>%
+  features(dIndice, unitroot_kpss)
+
+# Comportamento da série
+plot_serie <- train %>%
+  autoplot(
+    difference(difference(Indice, 12))
+  ) +
+  labs(
+    title = "Diferenciação da tendência + sazonalidade",
+    y = ""
+  )
+
+# ACF
+acf <- train %>%
+  ACF(
+    difference(difference(Indice, 12)),
+    lag_max = 36
+  ) %>%
+  autoplot() +
+  labs(title = "ACF")
+
+# PACF
+pacf <- train %>%
+  PACF(
+    difference(difference(Indice, 12)),
+    lag_max = 36
+  ) %>%
+  autoplot() +
+  labs(title = "PACF")
+
+gridExtra::grid.arrange(
+  plot_serie, acf, pacf,
+  layout_matrix = rbind(c(1,1), c(2,3))
+)
+```
+
+O recomendado seria a aplicar uma diferença sazonal (`D = 1`, lag 12) e, em seguida, uma diferença não sazonal (`d = 1`) para remover a tendência que também apresenta na série. A ACF/PACF da série duplamente diferenciada ajuzam a escolher as ordens `p`, `q`, `P`, `Q` dos modelos candidatos.
+
+## Estimando os modelos SARIMA
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+Indice_fit_sarima <- train %>%
+  model(
+    SARIMA_1 = ARIMA(Indice ~ pdq(1,1,1) + PDQ(0,1,1, period = 12)),
+    SARIMA_2 = ARIMA(Indice ~ pdq(2,1,1) + PDQ(1,1,1, period = 12)),
+    SARIMA_3 = ARIMA(Indice ~ pdq(0,1,1) + PDQ(0,1,1, period = 12)),
+    SARIMA_4 = ARIMA(Indice ~ pdq(1,1,0) + PDQ(1,1,0, period = 12)),
+    SARIMA_5 = ARIMA(Indice ~ pdq(2,1,0) + PDQ(2,1,0, period = 12)),
+    SARIMA_6 = ARIMA(Indice ~ pdq(0,1,2) + PDQ(0,1,2, period = 12)),
+    AutoSARIMA = ARIMA(Indice, stepwise = FALSE, approximation = FALSE)
+  )
+
+Indice_fit_sarima %>% 
+  print(width = Inf)
+
+# Ordens escolhidas pela busca automática
+Indice_fit_sarima %>%
+  glance() %>%
+  select(.model, AIC, AICc, BIC)
+```
+
+Foram estimados 7 modelos SARIMA no conjunto de treino. Entre as opções avaliadas, o SARIMA_2, correspondente ao ARIMA(2,1,1)(1,1,1)[12], apresentou os menores valores de ajuste do AIC e AICc, indicando o melhor ajuste entre os modelos considerados, que será conferido mais a frente de acordo com as métricas de erro. Os seis primeiros modelos foram definidos manualmente a partir das combinações sugeridas pela ACF e PACF, enquanto o AutoSARIMA realizou a seleção das ordens de forma automática.
+
+## Criando o gráfico com as previsões
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+Indice_fc_sarima <- Indice_fit_sarima %>% forecast(h = 12)
+
+Indice_fc_sarima %>%
+  autoplot(train, level = NULL) +
+  autolayer(
+    test,
+    colour = "black"
+  ) +
+  labs(
+    y = "Quantidade de passageiros",
+    title = "Previsão — Modelos SARIMA"
+  ) +
+  guides(colour = guide_legend(title = "Forecast"))
+```
+
+## Medidas de avaliação
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+accuracy(Indice_fc_sarima, test) %>%
+  select(.model, ME, RMSE, MAE, MPE, MAPE, MASE, RMSSE, ACF1) %>%
+  arrange(MAPE) %>%
+  rename(Modelo = .model) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 4))) %>%
+  kbl(caption = "Métricas de avaliação — Modelos SARIMA") %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = TRUE,
+    font_size  = 14
+  ) %>%
+  row_spec(1, bold = TRUE, background = "")
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Escolhendo automaticamente o modelo SARIMA com o menor MAPE no conjunto de teste
+melhor_sarima <- accuracy(Indice_fc_sarima, test) %>%
+  arrange(MAPE) %>%
+  slice(1) %>%
+  pull(.model)
+
+melhor_sarima
+
+# Reajustando a especificação vencedora na série completa
+mod_best_sarima <- Indice_fit_sarima %>%
+  select(all_of(melhor_sarima)) %>%
+  refit(serie_mensal)
+
+mod_best_sarima %>% report()
+
+# Diagnóstico de resíduos do melhor modelo SARIMA
+mod_best_sarima %>% gg_tsresiduals(lag_max = 36)
+```
+
+Apesar de o SARIMA_2 ter apresentado o melhor ajuste na fase de treinamento, com o menor AICc (5608), o SARIMA_5, correspondente ao ARIMA(2,1,0)(2,1,0)[12], apresentou o melhor desempenho no período de teste. Com MAPE de 2,10% e RMSE de 1972,51, o modelo apresentou a melhor capacidade de previsão entre os candidatos avaliados. Por isso, o SARIMA_5 foi escolhido para gerar a previsão final de 12 passos.
+
+## Criando a previsão com o melhor modelo SARIMA
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+Indice_fc_sarima_best <- mod_best_sarima %>% forecast(h = 12)
+
+Indice_fc_sarima_best %>%
+  autoplot(serie_mensal, level = NULL) +
+  autolayer(
+    test,
+    colour = "black"
+  ) +
+  labs(
+    y = "Quantidade de passageiros",
+    title = "Previsão — Melhor Modelo SARIMA"
+  ) +
+  guides(colour = guide_legend(title = "Forecast"))
+```
+
+## Comparando o melhor ETS com o melhor SARIMA
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+Indice_fit_comp <- train %>%
+  model(
+    HW_Mult = ETS(Indice ~ error("M") + trend("A") + season("M"))
+  ) %>%
+  # Anexando, na mesma mable, o modelo SARIMA (combinação de ARMA
+  # sazonal + não sazonal) que teve o melhor desempenho no teste
+  mutate(!!melhor_sarima := Indice_fit_sarima[[melhor_sarima]])
+
+Indice_fc_comp <- Indice_fit_comp %>% forecast(h = 12)
+
+accuracy(Indice_fc_comp, test) %>%
+  select(.model, ME, RMSE, MAE, MPE, MAPE, MASE, RMSSE, ACF1) %>%
+  arrange(MAPE) %>%
+  rename(Modelo = .model) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 4))) %>%
+  kbl(caption = "ETS vs. SARIMA — Comparação final") %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = TRUE,
+    font_size  = 14
+  ) %>%
+  row_spec(1, bold = TRUE, background = "")
+```
+
+Essa comparação final, feita no mesmo conjunto de teste, mostra que o HW_Mult apresentou o melhor desempenho entre os dois modelos. Ele obteve MAPE de 1,8174%, menor que os 2,0975% do SARIMA_5, além de apresentar menores valores de RMSE (1913,105) e MAE (1451,226). Portanto, o HW_Mult foi o modelo que melhor generalizou e foi escolhido para a previsão final da série de embarques aéreos.
+
+## Conclusão {.scrollable}
+
+Ao longo dos anos, a série de embarques aéreos dos EUA apresenta um crescimento no número de passageiros, acompanhado por um padrão sazonal bem definido. Os menores valores costumam ocorrer no início do ano, enquanto os maiores aparecem entre junho e agosto, seguidos por uma redução nos meses seguintes.
+
+Para representar esse comportamento, foram avaliados modelos ETS e SARIMA. Entre os modelos ETS, o Holt-Winters Multiplicativo (HW_Mult) apresentou o melhor desempenho. Já entre os modelos SARIMA, o SARIMA_5 - ARIMA(2,1,0)(2,1,0)[12] obteve o menor erro no período de teste, com MAPE de 2,10%.
+
+Na comparação final, o HW_Mult apresentou melhor desempenho que o SARIMA_5, com MAPE de 1,8174%, contra 2,0975%, além de menores valores de RMSE e MAE. Assim, o HW_Mult foi escolhido como o modelo final para realizar as previsões dos embarques aéreos.
 
 # Referência
 

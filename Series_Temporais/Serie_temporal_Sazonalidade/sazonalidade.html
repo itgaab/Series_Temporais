@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.9.37">
 
   <meta name="author" content="Ítalo Gabriel">
-  <title>Análise de Série Temporal com Sazonalidade - Passages Aéreas</title>
+  <title>Análise de Série Temporal com Sazonalidade - Passagens Aéreas</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -165,7 +165,7 @@
     <div class="slides">
 
 <section id="title-slide" data-background-image="Marca_UEPB.png" data-background-opacity="0.15" data-background-size="contain" class="quarto-title-block center">
-  <h1 class="title">Análise de Série Temporal com Sazonalidade - Passages Aéreas</h1>
+  <h1 class="title">Análise de Série Temporal com Sazonalidade - Passagens Aéreas</h1>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -305,7 +305,7 @@
 <h4 id="definindo-as-bases-de-treino-e-teste">Definindo as bases de treino e teste</h4>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code># A tsibble: 301 x 2 [1M]
+<pre><code># A tsibble: 302 x 2 [1M]
         mes Indice
       &lt;mth&gt;  &lt;int&gt;
  1 2000 jan  46492
@@ -318,31 +318,30 @@
  8 2000 ago  61355
  9 2000 set  52222
 10 2000 out  56555
-# ℹ 291 more rows</code></pre>
+# ℹ 292 more rows</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tsibble: 13 x 2 [1M]
+<pre><code># A tsibble: 12 x 2 [1M]
         mes Indice
       &lt;mth&gt;  &lt;int&gt;
- 1 2025 fev  67209
- 2 2025 mar  83674
- 3 2025 abr  80404
- 4 2025 mai  85277
- 5 2025 jun  88679
- 6 2025 jul  92180
- 7 2025 ago  86766
- 8 2025 set  76819
- 9 2025 out  84163
-10 2025 nov  74848
-11 2025 dez  81185
-12 2026 jan  69490
-13 2026 fev  68186</code></pre>
+ 1 2025 mar  83674
+ 2 2025 abr  80404
+ 3 2025 mai  85277
+ 4 2025 jun  88679
+ 5 2025 jul  92180
+ 6 2025 ago  86766
+ 7 2025 set  76819
+ 8 2025 out  84163
+ 9 2025 nov  74848
+10 2025 dez  81185
+11 2026 jan  69490
+12 2026 fev  68186</code></pre>
 </div>
 </div>
 <p>Nossa base de treino para os modelos começa em janeiro de 2000 até janeiro de 2025 contendo 301 observações, já a base de teste começa em fevereiro de 2025 contendo 12 observações para uma previsão de 12 meses.</p>
 </section>
 <section>
-<section id="previsão-utilizando-o-modelo-ets" class="title-slide slide level1 center">
+<section id="previsão-utilizando-o-modelo-ets" class="title-slide slide level1 center" data-background-color="#21295C">
 <h1>Previsão utilizando o modelo ETS</h1>
 
 </section>
@@ -370,8 +369,8 @@
 
 <img data-src="sazonalidade_files/figure-revealjs/unnamed-chunk-12-1.png" width="960" class="r-stretch"><p>O gráfico da série temporal mostra a vizualização das previsões dos 5 modelos ETS para os 12 meses seguintes.</p>
 </section>
-<section id="medidas-de-avaliacao" class="slide level2">
-<h2>Medidas de avaliacao</h2>
+<section id="medidas-de-avaliação" class="slide level2">
+<h2>Medidas de avaliação</h2>
 <div class="cell">
 <div class="cell-output-display">
 <table class="table table-striped table-hover table-condensed caption-top" style="font-size: 14px; margin-left: auto; margin-right: auto;">
@@ -392,58 +391,58 @@
 <tbody>
 <tr class="odd">
 <td style="text-align: left; font-weight: bold; background-color: !important;">HW_Mult</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">-2306.542</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">3531.167</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">3089.970</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">-2.8890</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">3.8347</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">878.0668</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">1913.105</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">1451.226</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">1.0306</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">1.8174</td>
 <td style="text-align: right; font-weight: bold; background-color: !important;">NaN</td>
 <td style="text-align: right; font-weight: bold; background-color: !important;">NaN</td>
-<td style="text-align: right; font-weight: bold; background-color: !important;">0.4884</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">-0.1773</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">HW_Add</td>
-<td style="text-align: right;">2224.594</td>
-<td style="text-align: right;">3682.186</td>
-<td style="text-align: right;">3465.972</td>
-<td style="text-align: right;">2.4635</td>
-<td style="text-align: right;">4.2296</td>
+<td style="text-align: right;">3985.4902</td>
+<td style="text-align: right;">5058.365</td>
+<td style="text-align: right;">4522.911</td>
+<td style="text-align: right;">4.6332</td>
+<td style="text-align: right;">5.4097</td>
 <td style="text-align: right;">NaN</td>
 <td style="text-align: right;">NaN</td>
-<td style="text-align: right;">0.0737</td>
+<td style="text-align: right;">0.3732</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">HoltM</td>
-<td style="text-align: right;">1315.812</td>
-<td style="text-align: right;">8355.255</td>
-<td style="text-align: right;">7441.779</td>
-<td style="text-align: right;">0.7473</td>
-<td style="text-align: right;">9.3135</td>
+<td style="text-align: right;">6227.4518</td>
+<td style="text-align: right;">11320.983</td>
+<td style="text-align: right;">10026.970</td>
+<td style="text-align: right;">6.6971</td>
+<td style="text-align: right;">12.1810</td>
 <td style="text-align: right;">NaN</td>
 <td style="text-align: right;">NaN</td>
-<td style="text-align: right;">0.3130</td>
+<td style="text-align: right;">0.5751</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">HoltA</td>
-<td style="text-align: right;">7032.216</td>
-<td style="text-align: right;">10198.554</td>
-<td style="text-align: right;">8868.700</td>
-<td style="text-align: right;">7.9055</td>
-<td style="text-align: right;">10.5930</td>
+<td style="text-align: right;">11857.1860</td>
+<td style="text-align: right;">14046.913</td>
+<td style="text-align: right;">12245.704</td>
+<td style="text-align: right;">13.9028</td>
+<td style="text-align: right;">14.4707</td>
 <td style="text-align: right;">NaN</td>
 <td style="text-align: right;">NaN</td>
-<td style="text-align: right;">0.1680</td>
+<td style="text-align: right;">0.4750</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">SES</td>
-<td style="text-align: right;">8358.865</td>
-<td style="text-align: right;">11065.518</td>
-<td style="text-align: right;">9753.132</td>
-<td style="text-align: right;">9.5692</td>
-<td style="text-align: right;">11.6190</td>
+<td style="text-align: right;">13012.6163</td>
+<td style="text-align: right;">14823.908</td>
+<td style="text-align: right;">13012.616</td>
+<td style="text-align: right;">15.3906</td>
+<td style="text-align: right;">15.3906</td>
 <td style="text-align: right;">NaN</td>
 <td style="text-align: right;">NaN</td>
-<td style="text-align: right;">0.1342</td>
+<td style="text-align: right;">0.4408</td>
 </tr>
 </tbody>
 </table>
@@ -464,12 +463,261 @@
 
 <img data-src="sazonalidade_files/figure-revealjs/unnamed-chunk-15-1.png" width="960" class="r-stretch"><p>Com o Holt-Winters Multiplicativo (HW_Mult) estimado em toda a série, as previsões para os próximos 12 meses seguem bem o padrão histórico, capturando tanto a tendência de crescimento quanto o comportamento sazonal. As previsões ficam próximas dos valores reais observados no período de teste.</p>
 </section></section>
-<section id="conclusão" class="title-slide slide level1 center">
-<h1>Conclusão</h1>
-<p>Ao longo dos anos, a série de embarques aéreos dos EUA mostra que o número de passageiros foi crescendo de forma constante, e todo ano o mesmo padrão se repete: o movimento aéreo começa mais fraco em janeiro e fevereiro, vai ganhando força ao longo dos meses e atinge seu ponto mais alto entre junho e agosto, quando as férias impulsionam a demanda por viagens. Depois desse pico, o número cai novamente até o início do próximo ano.</p>
-<p>Para representar esse comportamento, foram utilizados modelos ETS, com destaque para o Holt-Winters multiplicativo, que melhor capturou a tendência e a sazonalidade da série. Na comparação entre os modelos, ele apresentou os menores erros no conjunto de teste, sendo o mais adequado para a previsão dessa série temporal.</p>
-</section>
+<section>
+<section id="previsão-utilizando-modelos-sarima" class="title-slide slide level1 center" data-background-color="#21295C">
+<h1>Previsão utilizando modelos SARIMA</h1>
 
+</section>
+<section id="verificando-a-necessidade-de-diferenciação-sazonal-e-não-sazonal" class="slide level2 scrollable">
+<h2>Verificando a necessidade de diferenciação sazonal e não sazonal</h2>
+<p>A série apresenta sazonalidade mensal (período 12), além de uma tendência de crescimento. Como a amplitude da sazonalidade aumenta conforme o nível da série cresce, é comum aplicar uma transformação logarítmica antes do ajuste do SARIMA, ajudando a estabilizar a variância e facilitando a modelagem.</p>
+<h3 id="diferenciação-apenas-da-tendência">Diferenciação apenas da tendência</h3>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  kpss_stat kpss_pvalue
+      &lt;dbl&gt;       &lt;dbl&gt;
+1    0.0642         0.1</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="sazonalidade_files/figure-revealjs/unnamed-chunk-16-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<h3 id="diferenciação-da-tendência-sanzonalidade">Diferenciação da tendência + sanzonalidade</h3>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  kpss_stat kpss_pvalue
+      &lt;dbl&gt;       &lt;dbl&gt;
+1    0.0157         0.1</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="sazonalidade_files/figure-revealjs/unnamed-chunk-17-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>O recomendado seria a aplicar uma diferença sazonal (<code>D = 1</code>, lag 12) e, em seguida, uma diferença não sazonal (<code>d = 1</code>) para remover a tendência que também apresenta na série. A ACF/PACF da série duplamente diferenciada ajuzam a escolher as ordens <code>p</code>, <code>q</code>, <code>P</code>, <code>Q</code> dos modelos candidatos.</p>
+</section>
+<section id="estimando-os-modelos-sarima" class="slide level2">
+<h2>Estimando os modelos SARIMA</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A mable: 1 x 7
+                   SARIMA_1                  SARIMA_2                  SARIMA_3
+                    &lt;model&gt;                   &lt;model&gt;                   &lt;model&gt;
+1 &lt;ARIMA(1,1,1)(0,1,1)[12]&gt; &lt;ARIMA(2,1,1)(1,1,1)[12]&gt; &lt;ARIMA(0,1,1)(0,1,1)[12]&gt;
+                   SARIMA_4                  SARIMA_5                  SARIMA_6
+                    &lt;model&gt;                   &lt;model&gt;                   &lt;model&gt;
+1 &lt;ARIMA(1,1,0)(1,1,0)[12]&gt; &lt;ARIMA(2,1,0)(2,1,0)[12]&gt; &lt;ARIMA(0,1,2)(0,1,2)[12]&gt;
+                 AutoSARIMA
+                    &lt;model&gt;
+1 &lt;ARIMA(0,1,0)(2,0,0)[12]&gt;</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 4
+  .model       AIC  AICc   BIC
+  &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 SARIMA_1   5614. 5614. 5629.
+2 SARIMA_2   5608. 5608. 5630.
+3 SARIMA_3   5613. 5613. 5624.
+4 SARIMA_4   5695. 5695. 5706.
+5 SARIMA_5   5667. 5667. 5685.
+6 SARIMA_6   5614. 5615. 5633.
+7 AutoSARIMA 5954. 5954. 5965.</code></pre>
+</div>
+</div>
+<p>Foram estimados 7 modelos SARIMA no conjunto de treino. Entre as opções avaliadas, o SARIMA_2, correspondente ao ARIMA(2,1,1)(1,1,1)[12], apresentou os menores valores de ajuste do AIC e AICc, indicando o melhor ajuste entre os modelos considerados, que será conferido mais a frente de acordo com as métricas de erro. Os seis primeiros modelos foram definidos manualmente a partir das combinações sugeridas pela ACF e PACF, enquanto o AutoSARIMA realizou a seleção das ordens de forma automática.</p>
+</section>
+<section id="criando-o-gráfico-com-as-previsões-1" class="slide level2">
+<h2>Criando o gráfico com as previsões</h2>
+
+<img data-src="sazonalidade_files/figure-revealjs/unnamed-chunk-19-1.png" width="960" class="r-stretch"></section>
+<section id="medidas-de-avaliação-1" class="slide level2">
+<h2>Medidas de avaliação</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed caption-top" style="font-size: 14px; margin-left: auto; margin-right: auto;">
+<caption>Métricas de avaliação — Modelos SARIMA</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Modelo</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">ME</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">RMSE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MAE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MPE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MAPE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MASE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">RMSSE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">ACF1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold; background-color: !important;">SARIMA_5</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">-143.8405</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">1972.510</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">1639.741</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">-0.3826</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">2.0975</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">NaN</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">NaN</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">0.2753</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SARIMA_4</td>
+<td style="text-align: right;">2062.1998</td>
+<td style="text-align: right;">2461.449</td>
+<td style="text-align: right;">2232.130</td>
+<td style="text-align: right;">2.4403</td>
+<td style="text-align: right;">2.6673</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">0.2175</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">AutoSARIMA</td>
+<td style="text-align: right;">3545.2778</td>
+<td style="text-align: right;">4297.801</td>
+<td style="text-align: right;">3579.409</td>
+<td style="text-align: right;">4.1466</td>
+<td style="text-align: right;">4.1927</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">0.3662</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SARIMA_3</td>
+<td style="text-align: right;">3821.1933</td>
+<td style="text-align: right;">4778.503</td>
+<td style="text-align: right;">4178.204</td>
+<td style="text-align: right;">4.4625</td>
+<td style="text-align: right;">4.9660</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">0.4818</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SARIMA_1</td>
+<td style="text-align: right;">4123.8526</td>
+<td style="text-align: right;">5023.770</td>
+<td style="text-align: right;">4327.771</td>
+<td style="text-align: right;">4.8394</td>
+<td style="text-align: right;">5.1263</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">0.4834</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SARIMA_6</td>
+<td style="text-align: right;">4178.5774</td>
+<td style="text-align: right;">5253.311</td>
+<td style="text-align: right;">4568.746</td>
+<td style="text-align: right;">4.8799</td>
+<td style="text-align: right;">5.4298</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">0.5290</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SARIMA_2</td>
+<td style="text-align: right;">6800.0691</td>
+<td style="text-align: right;">7203.321</td>
+<td style="text-align: right;">6800.069</td>
+<td style="text-align: right;">8.2223</td>
+<td style="text-align: right;">8.2223</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">0.2961</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "SARIMA_5"</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Series: Indice 
+Model: ARIMA(2,1,0)(2,1,0)[12] 
+
+Coefficients:
+         ar1      ar2     sar1     sar2
+      0.3343  -0.0953  -0.6785  -0.3121
+s.e.  0.0590   0.0592   0.0567   0.0570
+
+sigma^2 estimated as 17758575:  log likelihood=-2942.46
+AIC=5886.91   AICc=5886.93   BIC=5890.62</code></pre>
+</div>
+
+</div>
+<img data-src="sazonalidade_files/figure-revealjs/unnamed-chunk-21-1.png" width="960" class="r-stretch"><p>Apesar de o SARIMA_2 ter apresentado o melhor ajuste na fase de treinamento, com o menor AICc (5608), o SARIMA_5, correspondente ao ARIMA(2,1,0)(2,1,0)[12], apresentou o melhor desempenho no período de teste. Com MAPE de 2,10% e RMSE de 1972,51, o modelo apresentou a melhor capacidade de previsão entre os candidatos avaliados. Por isso, o SARIMA_5 foi escolhido para gerar a previsão final de 12 passos.</p>
+</section>
+<section id="criando-a-previsão-com-o-melhor-modelo-sarima" class="slide level2">
+<h2>Criando a previsão com o melhor modelo SARIMA</h2>
+
+<img data-src="sazonalidade_files/figure-revealjs/unnamed-chunk-22-1.png" width="960" class="r-stretch"></section>
+<section id="comparando-o-melhor-ets-com-o-melhor-sarima" class="slide level2">
+<h2>Comparando o melhor ETS com o melhor SARIMA</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed caption-top" style="font-size: 14px; margin-left: auto; margin-right: auto;">
+<caption>ETS vs. SARIMA — Comparação final</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Modelo</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">ME</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">RMSE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MAE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MPE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MAPE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">MASE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">RMSSE</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">ACF1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; font-weight: bold; background-color: !important;">HW_Mult</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">878.0668</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">1913.105</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">1451.226</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">1.0306</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">1.8174</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">NaN</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">NaN</td>
+<td style="text-align: right; font-weight: bold; background-color: !important;">-0.1773</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SARIMA_5</td>
+<td style="text-align: right;">-143.8405</td>
+<td style="text-align: right;">1972.510</td>
+<td style="text-align: right;">1639.741</td>
+<td style="text-align: right;">-0.3826</td>
+<td style="text-align: right;">2.0975</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: right;">0.2753</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Essa comparação final, feita no mesmo conjunto de teste, mostra que o HW_Mult apresentou o melhor desempenho entre os dois modelos. Ele obteve MAPE de 1,8174%, menor que os 2,0975% do SARIMA_5, além de apresentar menores valores de RMSE (1913,105) e MAE (1451,226). Portanto, o HW_Mult foi o modelo que melhor generalizou e foi escolhido para a previsão final da série de embarques aéreos.</p>
+</section>
+<section id="conclusão" class="slide level2 scrollable">
+<h2>Conclusão</h2>
+<p>Ao longo dos anos, a série de embarques aéreos dos EUA apresenta um crescimento no número de passageiros, acompanhado por um padrão sazonal bem definido. Os menores valores costumam ocorrer no início do ano, enquanto os maiores aparecem entre junho e agosto, seguidos por uma redução nos meses seguintes.</p>
+<p>Para representar esse comportamento, foram avaliados modelos ETS e SARIMA. Entre os modelos ETS, o Holt-Winters Multiplicativo (HW_Mult) apresentou o melhor desempenho. Já entre os modelos SARIMA, o SARIMA_5 - ARIMA(2,1,0)(2,1,0)[12] obteve o menor erro no período de teste, com MAPE de 2,10%.</p>
+<p>Na comparação final, o HW_Mult apresentou melhor desempenho que o SARIMA_5, com MAPE de 1,8174%, contra 2,0975%, além de menores valores de RMSE e MAE. Assim, o HW_Mult foi escolhido como o modelo final para realizar as previsões dos embarques aéreos.</p>
+</section></section>
 <section id="referência" class="title-slide slide level1 center">
 <h1>Referência</h1>
 <p>Os dados utilizados são do Escritório de Estatísticas de Transporte dos EUA, onde foi obtido do FRED, Banco da Reserva Federal de St.&nbsp;Louis.</p>
